@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"strings"
-	"unicode"
 )
 
 // An operator acts on a range given by a motion (cw), by doubling the
@@ -146,22 +145,6 @@ func (e *Editor) makeIndent(w int) []rune {
 	}
 	for ; w > 0; w-- {
 		s = append(s, ' ')
-	}
-	return s
-}
-
-func mapCase(s []rune, how Key) []rune {
-	for i, r := range s {
-		switch {
-		case how == 'u':
-			s[i] = unicode.ToLower(r)
-		case how == 'U':
-			s[i] = unicode.ToUpper(r)
-		case unicode.IsUpper(r):
-			s[i] = unicode.ToLower(r)
-		default:
-			s[i] = unicode.ToUpper(r)
-		}
 	}
 	return s
 }

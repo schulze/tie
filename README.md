@@ -55,7 +55,8 @@ Both are embedded in the binary. Working on the code: see `AGENTS.md`.
 
 * `s`, `v`, `V` and any motion make dot; a search (`/re`, `n`, `*`) makes
   the match dot, as does `:/re/` and `:5,9s`. Other motions drop it.
-* On dot: `c y p J ~ u U r`, and `:` commands, which default to dot.
+* On dot: `c y p J r`, and `:` commands, which default to dot
+  (`:|tr a-z A-Z` for the case).
 * Pipes from acme: `:|cmd`, `:<cmd`, `:>cmd`. Visual `< >` shift, as in vi. There is no `!`
   filter and no `%`: filter with `|`, and `,` is the whole file (sam).
 * `:edit` (`:e`) runs sam's command language: `,s/a/b/g`,

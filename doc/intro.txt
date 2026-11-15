@@ -259,8 +259,8 @@ dashes, and  3o  makes three new lines with the same text.
      rx  replaces the character under the cursor with  x , and  3rx
 replaces three characters.  r  RETURN breaks the line there.
 
-     ~  changes the case of the character under the cursor and moves
-on.
+     To change the case of text, select it and filter it (section 6.6):
+:|tr a-z A-Z  makes it upper case.
 
 
 3.3.  More corrections: operators
@@ -643,7 +643,6 @@ at the cursor. A pattern address,  :/re/ , makes the match dot.
      y          yank dot; dot stays selected, for what you do next
      p          replace dot by the register
      J          join the lines of dot
-     ~  u  U    swap the case, make lower case, make upper case
      rx         replace every character of dot with x
      :          a command line on dot, for instance a pipe (section 7.4)
      <  >       shift the lines of dot, as in vi
@@ -994,10 +993,9 @@ what it does. "Jump" marks the commands that set the mark  ' .
      z         execute (button 2) dot or the word under the cursor (7.5)
      {         motion, jump: the previous empty line
      }         motion, jump: the next empty line
-     ~         change the case of characters
 
      In visual mode, the motions move the cursor end of dot, and these
-keys act on it:  c y p J ~ u U r : < > , as in section 7.3;  z
+keys act on it:  c y p J r : < > , as in section 7.3;  z
 executes dot and  t  looks at it;  g  goes to the tag and keeps dot.
 s  grows dot to lines, the paragraph, the file.  o  goes to the other
 end;  v  and  V  switch the kind of selection or leave; ESC leaves.

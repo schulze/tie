@@ -171,7 +171,8 @@ Later: the vi aliases `s S D Y` and `R` (replace mode), the motions
 spellings other than `zt zz zb` (and later those too, for `z`), the
 `tx`/`Tx` motions (for `t`), visual `x s P |`, `:put :undo :redo`
 (the builtins call the code), `:f`, `:r` (`:<cat file`), `:xit` (`:wq`),
-a count before `:`, and the `wrapscan` option (searches always wrap).
+a count before `:`, the `wrapscan` option (searches always wrap), and
+`~` and visual `~ u U` (case: `:|tr a-z A-Z`).
 Then: vi's change operator (`c` became cut, vi's `d`), `d` as delete (it
 is Del now), the `q` key, prefix abbreviations of commands, and the
 separate builtins table (commands are executed by their names).

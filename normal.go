@@ -31,7 +31,6 @@ func init() {
 		'p': paste, 'P': paste,
 		'J': {joinCmd, true},
 		'r': {replaceCharCmd, true},
-		'~': {tildeCmd, true},
 		'u': {undoCmd, false}, ctrl('r'): {redoCmd, false},
 		'.': {period, false},
 		'v': vis, 'V': vis,
@@ -185,16 +184,6 @@ func replaceCharCmd(e *Editor, c *ctx) {
 	}
 	f.replace(f.cur, f.cur+n, s)
 	f.cur += n - 1
-}
-
-func tildeCmd(e *Editor, c *ctx) {
-	f := e.f
-	q1 := min(f.cur+c.n(), f.eol(f.cur))
-	if q1 <= f.cur {
-		return
-	}
-	f.replace(f.cur, q1, mapCase(f.t.Runes(f.cur, q1), '~'))
-	f.cur = q1
 }
 
 func undoCmd(e *Editor, c *ctx) {

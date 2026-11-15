@@ -21,7 +21,6 @@ func init() {
 		},
 		'p': vPaste,
 		'J': vJoin,
-		'~': vCase, 'u': vCase, 'U': vCase,
 		'r': vReplace,
 		':': vCommand,
 		'<': vShift, '>': vShift,
@@ -123,14 +122,6 @@ func vJoin(e *Editor, c *ctx, line bool) {
 	f := e.f
 	l0 := f.line(f.dot.Q0)
 	e.join(l0, max(1, f.lastLine(f.dot)-l0))
-	c.changed = true
-}
-
-func vCase(e *Editor, c *ctx, line bool) {
-	f := e.f
-	d := f.dot
-	f.replace(d.Q0, d.Q1, mapCase(f.t.Runes(d.Q0, d.Q1), c.key))
-	f.cur = d.Q0
 	c.changed = true
 }
 

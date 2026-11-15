@@ -574,10 +574,11 @@
 
        c       cut dot
        y       yank dot (dot stays)    p       replace dot by the register
-       ~ u U   swap, lower, upper case J       join the lines
-       r x     replace each character with x
+       J       join the lines          r x     replace each character with x
 
-   1. Select  shout  with  s , then press  U .
+   And everything on the command line: a filter changes the case.
+
+   1. Select  shout  with  s , then type  :|tr a-z A-Z <RETURN> .
 
 ---> Please do not shout.
 
@@ -825,7 +826,7 @@
 
    1. Dot is the selection. s selects the word (again: line, paragraph,
       file); v and V select from the cursor; a search makes dot.
-   2. On dot:  c y p  ~ u U  J  r .
+   2. On dot:  c y p  J  r , and  :  commands such as  :|tr a-z A-Z .
    3. Pipes on dot:  :|cmd  :<cmd  :>cmd ; any  :  command without an
       address works on dot.
    4. /re  s c  then  n .  cuts match after match;  :e s/re/new/g
