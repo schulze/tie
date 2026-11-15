@@ -248,7 +248,8 @@ func (e *Editor) parseAddr(s string) (r Range, line, ok bool, rest string, err e
 		if pat == "" {
 			pat = e.pat
 		}
-		e.pat, e.back = pat, c == '?'
+		e.setPat(pat, false)
+		e.back = c == '?'
 		re, err := e.compile(pat)
 		if err != nil {
 			return r, line, false, s, err

@@ -207,7 +207,7 @@ func (e *Editor) look(text string, from int) error {
 		}
 	}
 	f := e.f
-	e.pat = regexp.QuoteMeta(text)
+	e.setPat(regexp.QuoteMeta(text), false)
 	e.back = false
 	re, _ := e.compile(e.pat)
 	m, wrapped, ok := f.search(re, from, false)

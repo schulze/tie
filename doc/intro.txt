@@ -172,7 +172,9 @@ shown in reverse video (section 7). Try  /name  and a few  n .
 Go's regexp package (RE2), which is close to what you know from egrep:
 .  matches any character,  [a-z]  a range,  x*  any number of x,
 x+  one or more,  ^  the start and  $  the end of a line,  a|b
-either. As in vi,  \<  and  \>  match the start and end of a word. A
+either. As in vi,  \<  and  \>  match the start and end of a word,
+though only of words in ASCII letters (they are Go's \b);  *  and  #
+find whole words in any script. A
 search matches within one line. If you set the  ignorecase  option
 (section 6.2) case does not matter.
 

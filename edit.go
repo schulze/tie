@@ -89,7 +89,7 @@ func (e *Editor) samRegexp(pat string) (*regexp.Regexp, error) {
 	if pat == "" {
 		return nil, errors.New("Edit: no pattern")
 	}
-	e.pat = pat
+	e.setPat(pat, false)
 	return e.compile("(?m)" + pat)
 }
 

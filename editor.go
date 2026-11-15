@@ -70,6 +70,7 @@ type Editor struct {
 	lastAt rune
 
 	pat   string // last search pattern
+	word  bool   // it matches whole words only (*, #)
 	back  bool   // last search was backwards
 	match *Range // set by a search motion
 	find  struct {

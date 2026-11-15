@@ -406,7 +406,7 @@ func mSearch(e *Editor, c *ctx) (int, bool) {
 		return 0, false
 	}
 	if pat != "" {
-		e.pat = pat
+		e.setPat(pat, false)
 	}
 	e.back = false
 	return e.searchNext(c, false, e.f.cur)
@@ -434,7 +434,10 @@ func mStar(e *Editor, c *ctx) (int, bool) {
 	for class(f.t.At(b), false) == 1 {
 		b++
 	}
-	e.pat = `\<` + regexp.QuoteMeta(f.t.String(a, b)) + `\>`
+	// The word, as a whole word. Go's \b knows only ASCII letters, so
+	// the word is searched for literally and searchNext keeps the
+	// matches with no letter, digit or _ next to them.
+	e.setPat(regexp.QuoteMeta(f.t.String(a, b)), true)
 	e.back = c.key == '#'
 	return e.searchNext(c, e.back, a)
 }
@@ -454,20 +457,38 @@ func (e *Editor) searchNext(c *ctx, back bool, from int) (int, bool) {
 	q := from
 	var r Range
 	for range c.n() {
-		var wrapped, ok bool
-		r, wrapped, ok = e.f.search(re, q, back)
-		if !ok {
-			e.msg = fmt.Sprintf("Pattern not found: %s", e.pat)
-			return 0, false
+		first := -1
+		for {
+			var wrapped, ok bool
+			r, wrapped, ok = e.f.search(re, q, back)
+			if !ok || r.Q0 == first {
+				e.msg = fmt.Sprintf("Pattern not found: %s", e.pat)
+				return 0, false
+			}
+			if wrapped {
+				e.msg = "search wrapped"
+			}
+			if first < 0 {
+				first = r.Q0
+			}
+			q = r.Q0
+			if !e.word || e.f.wholeWord(r) {
+				break
+			}
 		}
-		if wrapped {
-			e.msg = "search wrapped"
-		}
-		q = r.Q0
 	}
 	e.match = &r
 	return r.Q0, true
 }
+
+// wholeWord reports whether r has no word character on either side.
+func (f *File) wholeWord(r Range) bool {
+	return class(f.t.At(r.Q0-1), false) != 1 && class(f.t.At(r.Q1), false) != 1
+}
+
+// setPat sets the pattern n and N search for; word makes it match
+// whole words only (as * does).
+func (e *Editor) setPat(pat string, word bool) { e.pat, e.word = pat, word }
 
 func mMark(e *Editor, c *ctx) (int, bool) {
 	f := e.f

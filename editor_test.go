@@ -1553,3 +1553,119 @@ func TestInsertIntoEmpty(t *testing.T) {
 		}
 	}
 }
+
+// Unicode: the text is runes, so motions, counts, edits, searches and
+// substitutions count characters, not bytes. The strings are those of
+// the fmt and unicode/utf8 examples in the Go documentation.
+var unicodeTests = []struct {
+	name, text, keys, want string
+	cur                    int // rune offset; -1: don't check
+}{
+	{"3l over CJK", "日本語abc\n", "3lx", "日本語bc\n", 3},
+	{"l over é", "héllo\n", "lx", "hllo\n", 1},
+	{"$ on CJK", "Hello, 世界\n", "$x", "Hello, 世\n", 7},
+	{"x on 4-byte rune", "a😀b\n", "lx", "ab\n", 1},
+	{"w into CJK", "Hello, 世界 x\n", "wwx", "Hello, 界 x\n", 7},
+	{"w over Greek", "αβγ δεζ\n", "wcw", "αβγ \n", 3},
+	{"e on CJK word", "世界 abc\n", "ex", "世 abc\n", 1},
+	{"b back over CJK", "abc 世界\n", "$bx", "abc 界\n", 4},
+	{"f to CJK", "a世b界c\n", "f界x", "a世bc\n", 3},
+	{"F back", "a世b界c\n", "$F世x", "ab界c\n", 1},
+	{"count x", "日本語\n", "2x", "語\n", 0},
+	{"insert CJK", "ab\n", "a世界\x1b", "a世界b\n", 2},
+	{"replace with r", "abc\n", "r世", "世bc\n", 0},
+	{"yank paste", "世界\n", "ylp", "世世界\n", 1},
+	{"cut word, paste", "日本 語 x\n", "cwwP", "語 日本 x\n", 4},
+	{"search", "abc 世界 def 世界\n", "/世界\rx", "abc 界 def 世界\n", 4},
+	{"search again", "abc 世界 def 世界\n", "/世界\rnx", "abc 世界 def 界\n", 11},
+	{"search dot", "αβγ δεζ\n", "/δε\rsc", "αβγ ζ\n", 4},
+	{"* on CJK word", "世界 x 世界\n", "*x", "世界 x 界\n", 5},
+	{"* whole words only", "日本 日本語 日本\n", "*x", "日本 日本語 本\n", 7},
+	{"# back", "αβ x αβ\n", "$#x", "β x αβ\n", 0},
+	{":e s on CJK", "Hello, 世界\n", ":e s/世界/World/\r", "Hello, World\n", 0},
+	{":e s group", "日本語\n", ":e s/(本)(語)/\\2\\1/\r", "日語本\n", 0},
+	{":e x c", "a世b世c\n", ":e ,x/世/c/-/\r", "a-b-c\n", 0},
+	{":e x on Greek", "αβγ αβγ\n", ":e ,x/β/c/b/\r", "αbγ αbγ\n", 0},
+	{"pipe on dot", "x héllo\n", "ws:|tr a-z A-Z\r", "x HéLLO\n", 2},
+	{"J", "世\n界\n", "J", "世 界\n", 1},
+	{"%", "(世界)\n", "%x", "(世界\n", 2},
+	{"select word", "一 二三 四\n", "wsc", "一  四\n", 2},
+}
+
+func TestUnicode(t *testing.T) {
+	for _, tt := range unicodeTests {
+		t.Run(tt.name, func(t *testing.T) {
+			e := testEditor(tt.text)
+			e.feed(tt.keys)
+			if got := string(e.f.t.r); got != tt.want {
+				t.Errorf("keys %q on %q:\ngot  %q\nwant %q (msg %q)", tt.keys, tt.text, got, tt.want, e.msg)
+			}
+			if tt.cur >= 0 && e.f.cur != tt.cur {
+				t.Errorf("keys %q on %q: cursor %d, want %d", tt.keys, tt.text, e.f.cur, tt.cur)
+			}
+		})
+	}
+}
+
+// Wide characters take two columns on the screen; the cursor and the
+// mouse must agree with that, and with combining accents, which take
+// none.
+func TestUnicodeScreen(t *testing.T) {
+	cursorCol := func(text, keys string) int {
+		e := testEditor(text)
+		e.feed(keys)
+		e.draw()
+		var out strings.Builder
+		e.t.out = &out
+		e.screen = nil
+		e.draw()
+		s := out.String()
+		i := strings.LastIndex(s, "\x1b[?25h")
+		j := strings.LastIndex(s[:i], ";")
+		var col int
+		fmt.Sscanf(s[j+1:i], "%dH", &col)
+		return col
+	}
+	for _, tt := range []struct {
+		name, text, keys string
+		col              int // 1-based screen column
+	}{
+		{"after one CJK", "世界\n", "l", 3},
+		{"after two CJK", "世界a\n", "2l", 5},
+		{"after é", "éa\n", "l", 2},
+		{"after combining e\u0301", "e\u0301a\n", "2l", 2},
+		{"after emoji", "😀a\n", "l", 3},
+		{"tab then CJK", "\t世x\n", "2l", 11},
+	} {
+		if got := cursorCol(tt.text, tt.keys); got != tt.col {
+			t.Errorf("%s: cursor in column %d, want %d", tt.name, got, tt.col)
+		}
+	}
+	// A click on either half of a wide character lands on it.
+	e := testEditor("a世b\n")
+	e.draw()
+	for x, want := range map[int]int{1: 0, 2: 1, 3: 1, 4: 2} {
+		if _, q := e.posAt(x, 2); q != want {
+			t.Errorf("click at column %d: position %d, want %d", x, q, want)
+		}
+	}
+	// The status line counts the column in characters.
+	e.feed("$")
+	e.draw()
+	if l := e.screen[len(e.screen)-1]; !strings.HasSuffix(l, "1,3") {
+		t.Errorf("status line %q, want column 3", l)
+	}
+}
+
+func TestUnicodeFile(t *testing.T) {
+	name := filepath.Join(t.TempDir(), "u.txt")
+	text := "Hello, 世界\nnaïve café 😀\n"
+	os.WriteFile(name, []byte(text), 0666)
+	e := testEditor("")
+	e.open(name)
+	e.feed("jwx:w\r")
+	b, _ := os.ReadFile(name)
+	if string(b) != "Hello, 世界\nnaïve afé 😀\n" {
+		t.Errorf("written %q", b)
+	}
+}
