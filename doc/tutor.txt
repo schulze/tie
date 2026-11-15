@@ -691,6 +691,24 @@
 
 ---> x Undo
 
+   5. One command on many names. Say the three names below are files
+      to remove (echo only shows the command). Join them into one line
+      with  V  2j  J , put the command in front with
+      I echo rm -rf <ESC> , and run the line with  V  and  z .
+      Press  u  until the list is back.
+
+     old.log
+     core
+     a.out
+
+   6. Or leave the lines as they are and send them to the command:
+      select them with  V  and  2j , and type
+          :>xargs echo rm -rf <RETURN>
+      The first way shows you the command, and you can change it
+      before it runs; the second leaves the list alone, works on any
+      number of lines, and copes with blanks in names:
+          :>tr '\n' '\0' | xargs -0 rm -rf
+
    On the command line,  :x  does the same:  :x date ,  or  :x  alone
    for dot or the word. This is how a file can hold the commands you
    use with it.

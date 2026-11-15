@@ -1326,6 +1326,7 @@ func TestTutor(t *testing.T) {
 		{"Lesson 6.3", "---> delta", "V3j:|sort\r", "---> alpha"},
 		{"Lesson 6.4", "---> Remove XX", "0/XX\rscn.n.n.", "---> Remove the markers from this line."},
 		{"Lesson 6.4", "---> The cat sat", "Vj:e s/\\<cat\\>/dog/g\r", "---> The dog sat on the mat. The dog was black."},
+		{"Lesson 6.5", "     old.log", "V2jJIecho rm -rf " + esc, "     echo rm -rf old.log core a.out"},
 		{"Lesson 6.8", "---> x marks", "0xgwwwz", "---> x marks the spot"},
 		{"Lesson 6.8", "---> delta", "V3jgA |sort" + esc + "z", "---> alpha"},
 		{"Lesson 6.9", "---> item 1", "Vjj:e x/[0-9]+/c/N/\r", "---> item N costs N"},
