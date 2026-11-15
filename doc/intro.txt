@@ -1,0 +1,1035 @@
+
+
+                An Introduction to Display Editing with Tie
+
+
+
+                                 ABSTRACT
+
+     Tie (tie is the interactive editor) is a display oriented text
+     editor. Like vi, from which it takes nearly all of its commands,
+     it shows a window of the file on the screen and lets you change
+     the text in it with short commands typed in a mode of their own.
+     Like acme, it keeps a current selection, called dot, and lets
+     commands and other programs work on it.
+
+     This note introduces tie. It starts with the few commands needed
+     to change a file and leave the editor, and works up to the
+     commands that make an experienced user fast. The appendix lists
+     every command by the character that invokes it.
+
+     If you would rather learn by doing, run  tie -tutor  first.
+
+
+
+1.  Getting started
+
+     This note is written as though you are sitting at a terminal and
+trying things as you read. You should. Commands you read about are
+forgotten; commands your fingers have typed are not.
+
+
+1.1.  The terminal
+
+     Tie needs a terminal, or a terminal emulator window, that
+understands the ANSI (VT100) control sequences. Every terminal
+emulator in use today does. Tie asks the terminal for its size, and
+follows the window when you resize it. It also asks the terminal how
+wide its tab stops are, by printing a tab and asking where the cursor
+went; that becomes the tab width tie uses to show tabs, unless you set
+one (see section 6.2).
+
+     Tie uses the terminal's alternate screen, so when you leave the
+editor your shell session reappears as you left it.
+
+
+1.2.  Editing a file
+
+     To edit a file, type
+
+          tie name
+
+to the shell, where name is the file. If the file does not exist tie
+says  [New File]  and the file is created when you first write it.
+You may name several files; tie edits the first, and the others are
+waiting (see section 5.1). Try it now: copy some file you do not care
+about, say with
+
+          cp /etc/services junk
+
+and edit  junk .
+
+     The screen fills with the start of the file. The top line of the
+screen, the buffer line, lists the files you are editing, by number;
+the one shown is in reverse video, and a  +  marks those with changes
+not yet written (section 5.1). The last line of the screen, the status
+line, shows the tag of the file on the left, a line of commands
+(section 7.8), and the line and the column of the cursor on the right.
+A message, or the mode you are in, takes the place of the tag until
+you type the next key, and a command you type after a colon takes the
+whole line. Lines past the end of the file are shown as  ~ .
+
+
+1.3.  The editor's copy: the buffer
+
+     Tie does not change the file directly. It reads the file into a
+buffer, and all your changes are made to the buffer. The file on disk
+only changes when you write the buffer back. If you make a mess, you
+can always leave without writing (section 1.7), and the file is as it
+was.
+
+
+1.4.  Notational conventions
+
+     In this note, keys are written as they are labelled: ESC, RETURN,
+BACKSPACE, TAB. A control character, typed by holding CTRL and
+pressing a letter, is written with a circumflex:  ^D  is CTRL and d.
+Commands are shown in bold where this note is typeset and between
+spaces where it is not, like  cw .  Commands are case sensitive:  c
+and  C  are different commands.
+
+
+1.5.  Arrow keys
+
+     The editor moves the cursor with  h  (left),  j  (down),  k  (up)
+and  l  (right). These are on the home row of the keyboard, where your
+right hand rests, and you will soon prefer them to anything else. The
+arrow keys, Home, End, Page Up and Page Down also work.
+
+     Try moving around now. If you try to go past the beginning or end
+of a line, or of the file, the cursor does not move.
+
+
+1.6.  Special characters: ESC, RETURN and ^C
+
+     Tie is modal. Most of the time it is in normal mode, where every
+key is a command. When you insert text, it is in insert mode, and keys
+are text. The bottom line shows  -- INSERT --  then. Where the terminal
+can change the shape of the cursor, it is a bar in insert mode and a
+block in normal mode.
+
+     ESC ends insert mode, and cancels a command that you have only
+partly typed. If you are ever unsure of the state of the editor, press
+ESC; it does no harm.
+
+     RETURN ends a command typed on the status line: a search, or a
+command beginning with a colon. On the status line BACKSPACE erases a
+character, ^W a word and ^U the whole line; ESC, or BACKSPACE on an
+empty line, abandons the command. The up and down arrows bring back
+earlier lines.
+
+     ^C cancels a command line, like ESC. It does not interrupt the
+editor.
+
+     ?  shows a list of every key and command, made from the editor's
+own tables: it is always up to date, also when keys have been changed
+in config.go.  d  closes the list again.
+
+
+1.7.  Getting out of the editor
+
+     The command  :wq  RETURN writes the file and closes it. When it was
+the only file, the editor is done and you are back in the shell.
+
+     d  closes the file you are looking at, as acme's Del does, and
+:del  (short:  :q ) does the same.
+When the file has unwritten changes they only warn; a second  d  (or
+Del) right after the first closes it anyway, as acme's Del does, and
+so does  :q! . The changes are then lost. When the file is the last one open,
+closing it leaves the editor.  Q  (or  :exit , short  :qa ) leaves the editor at
+once, from any file, unless some file has unwritten changes, and then
+it tells you which;  :qa!  leaves regardless.
+
+     (vi's  ZZ  and  :x  write and quit. In tie  Z  and  X  are buttons,
+and  :x  executes text; see section 7.)
+
+     Leave the editor now, and start it again on  junk .
+
+
+
+2.  Moving around in the file
+
+
+2.1.  Scrolling and paging
+
+     ^D  scrolls down half a screen and  ^U  up half a screen; the
+cursor moves with the text. ^F  pages forward a whole screen, keeping
+two lines for context, and  ^B  pages back. ^E  and  ^Y  scroll by a
+single line, leaving the cursor where it is unless it would go off the
+screen.
+
+     Long lines are wrapped onto the next screen line, so everything in
+the file is always visible.
+
+
+2.2.  Searching, goto, and previous context
+
+     To find a string, type  /  followed by it and RETURN. Tie moves the
+cursor to the next place it occurs, wrapping around past the end of the
+file.  n  repeats the search,  N  goes the other way. The match is selected: it becomes dot,
+shown in reverse video (section 7). Try  /name  and a few  n .
+
+     What you search for is a regular expression. The syntax is that of
+Go's regexp package (RE2), which is close to what you know from egrep:
+.  matches any character,  [a-z]  a range,  x*  any number of x,
+x+  one or more,  ^  the start and  $  the end of a line,  a|b
+either. As in vi,  \<  and  \>  match the start and end of a word. A
+search matches within one line. If you set the  ignorecase  option
+(section 6.2) case does not matter.
+
+     Matches are found as in sam: of the matches that start leftmost,
+the longest wins, so  a|ab  matches all of "ab", and a negated class
+like  [^)]  never matches a newline. RE2 adds what sam does not have:
+{n,m}  for a counted repetition,  \d \w \s  and their negations, and
+classes of Unicode letters such as  \pL .
+
+     *  searches forward for the word under the cursor, as a whole word,
+and  #  backward.
+
+     G  goes to a line: preceded by a number, to that line, and without
+one, to the last line.  1G  goes to the first. The command
+:42  RETURN also goes to line 42.
+
+     ^G  tells you the name of the file, whether it is modified, the
+line you are on, and how far into the file that is.
+
+     After a jump (a search, G, %, and the others marked in the
+appendix) the two characters  ''  take you back where you were, and
+another  ''  returns again.
+
+
+2.3.  Moving around on the screen
+
+     H  moves to the first line on the screen ("home"),  M  to the
+middle one and  L  to the last.  3H  is the third line from the top.
+
+     j  and  k  keep the column: moving through a short line and on to
+a long one returns the cursor to the column it came from.
+
+
+2.4.  Moving within a line
+
+     w  moves to the start of the next word, and  b  back to the start
+of a word.  e  moves to the end of a word. A word is a sequence of
+letters, digits and underscores, or a sequence of other non-blank
+characters. W, B and E use longer words: everything between blanks. An
+empty line counts as a word.
+
+     0  moves to the start of the line,  ^  to its first non-blank
+character and  $  to its end.
+
+     fx  moves to the next  x  on the line, and  Fx  to the previous.
+tx  stops just before it, and  Tx  just after.  ;  repeats the last of
+these, and  ,  repeats it in the other direction.
+
+     %  moves to the bracket matching the one under the cursor. It knows
+() [] and {}. If the cursor is not on a bracket, it uses the first one
+after the cursor on the line.
+
+     {  and  }  move to the previous and next empty line: the boundaries
+of paragraphs.
+
+
+3.  Making simple changes
+
+
+3.1.  Inserting
+
+     i  enters insert mode. Every character you type is put into the
+buffer before the cursor, until you press ESC.  a  appends: it starts
+inserting after the cursor.  I  inserts at the start of the line (after
+its indentation), and  A  appends at its end.
+
+     o  opens a new line below the current one and inserts on it,  O
+opens one above. RETURN in insert mode splits the line.
+
+     While inserting, BACKSPACE erases the character before the cursor,
+^W the word before it and ^U everything before it on the line. ^V
+inserts the next character literally, so ^V ESC puts an ESC into the
+text, and ^V TAB a tab even when tabs are expanded.
+
+     With a count, the insertion is repeated:  5i-  ESC  inserts five
+dashes, and  3o  makes three new lines with the same text.
+
+
+3.2.  Making small corrections
+
+     x  cuts the character under the cursor;  5x  cuts five.
+
+     rx  replaces the character under the cursor with  x , and  3rx
+replaces three characters.  r  RETURN breaks the line there.
+
+     ~  changes the case of the character under the cursor and moves
+on.
+
+
+3.3.  More corrections: operators
+
+     The command  cw  cuts a word. It is made of two parts: the
+operator  c , cut, and the motion  w . What is cut goes into a
+register, from which it can be pasted again (section 4.3). Any motion
+can follow an operator, and the operator works on the text between the
+cursor and where the motion would have gone:
+
+     cw     to the start of the next word    cb    back a word
+     c$     to the end of the line           c0    to its start
+     cfx    up to and including the next x   ctx   up to it
+     c/re   up to the next match of re       c%    to the matching bracket
+     c}     to the end of the paragraph      ce    to the end of the word
+
+     The motions of section 2 all work. A count may be put before the
+operator or before the motion:  3cw  and  c3w  both cut three words.
+When you type  c , nothing seems to happen; tie waits for the motion.
+
+     There are other operators. They all work the same way:
+
+     y      yank: copy the text into a register (section 4.3)
+     >      shift lines right by the shift width
+     <      shift lines left
+
+     To change text, cut it and insert the new text:  ce  then  inew
+ESC changes a word ( ce  leaves the space after it alone), and  c$
+then  a  the rest of a line. For many changes at once,  :e s  replaces
+what a pattern matches (section 6.1).
+
+     x  is short for  cl . (vi users: in tie  c  cuts and is vi's  d ;
+vi's change operator is not in tie, and  d  closes the buffer, as
+acme's Del. vi's short forms  D ,  S ,  s ,  C  and  X  are left out
+too, and some of the letters do other things.)
+
+
+3.4.  Operating on lines
+
+     Typing an operator twice makes it work on whole lines:  cc  cuts
+the current line,  yy  yanks it,  >>  shifts it.  3cc  cuts three
+lines, and  5>>  shifts five.
+
+     Some motions are line motions: when an operator uses them, it
+works on all the lines from the cursor to the target line.  j ,  k ,
+G ,  H  and  L  are such motions, and so is  '  (section 5.3). So  cj
+cuts this line and the next, and  cG  everything from here to the end.
+
+     J  joins the line with the next one, putting a space between
+them;  3J  joins three lines.
+
+
+3.5.  Undoing
+
+     u  undoes the last change, and  ^R  redoes it. Undo goes back as
+far as you like:  u  pressed ten times undoes ten changes. One change
+is one command, however much text it inserted or cut.
+
+     If you have undone everything since the file was last written, the
++  after its name on the buffer line disappears.
+
+
+
+4.  Moving about; rearranging and duplicating text
+
+
+4.1.  Repeating a change: period
+
+     The period,  . , repeats the last change. Cut a word with  cw ,
+move somewhere else, and press  .  to cut another. A count given to
+period replaces the count of the change: after  3x , the command  5.
+cuts five characters.
+
+     Tie calls this command period rather than dot, which is what vi
+users often call it, because dot is the name of the selection
+(section 7).
+
+     Period repeats anything that changed the text: insertions, the
+operators with all their motions (including searches), x, r, J, p and
+the others, and changes made to a selection in visual mode.
+
+
+4.2.  Higher level text objects
+
+     The paragraph motions  {  and  }  work with operators:  c}  cuts
+to the end of the paragraph, and  y}  yanks it.  %  is good for
+programs:  c%  on a bracket cuts the whole bracketed expression.
+
+
+4.3.  Rearranging and duplicating text
+
+     Every cut and every yank keeps the text it took in a register,
+from which  p  pastes it after the cursor and  P  before it. If the
+text was whole lines, it goes below the current line with  p  and
+above it with  P . So:
+
+     xp     swaps two characters
+     ccp    swaps two lines
+     yyp    duplicates a line
+     cwwP   moves a word to after the next one
+
+     There are 26 named registers,  a  to  z , besides the unnamed one.
+Type  "  and the name of a register before a command to use it:
+"ayy  yanks the line into register a, and  "ap  pastes it. Naming the
+register in capitals,  "Ayy , appends to it, so you can collect
+lines from all over the file and paste them together. Each cut or
+yank also goes into the unnamed register, which is what  p  uses by
+default.
+
+
+
+5.  High level commands
+
+
+5.1.  Writing, quitting, editing new files
+
+     The commands that start with a colon are typed on the status line
+and end with RETURN.
+
+     :w             write the buffer to its file
+     :w name        write it to the file name
+     :w! name       write to name, even if it exists
+     d   :del  :q   close the file; if it has unwritten changes, only
+                    warn: d again closes it; on the last, leave tie
+     :q!            close it and throw away the changes
+     Q   :exit :qa  leave the editor, if nothing is unwritten
+     :qa!           leave and throw away all changes
+     :wq            write and close
+     :l name        edit another file (look, section 7.6)
+     :new name      start a new file, made on disk by :w; :new alone,
+                    a buffer without a name
+     Get            read the file again from disk (a builtin, 7.5)
+     ^^             edit the previous file again
+     TAB 3          go to the third file on the buffer line
+     ^G             the file name and position
+     :<cat name     read a file in at the cursor (a pipe, section 7.4)
+
+     If you write a buffer that has no name, tie asks for one. On the
+status line, TAB completes a file name; pressing it again cycles
+through the names that fit. A directory can be edited too: it shows
+as a list of its entries (see section 7.6).
+
+     TAB puts the cursor on the buffer line, to choose a file: type its
+number (TAB 3 goes to the third), or move along the line with h and l
+and press RETURN; ESC, or TAB again, stays where you were. With ten or
+more files, TAB 1 waits for a second digit or RETURN. Clicking on a
+name on the buffer line goes to that file too.
+
+     Every file keeps its own buffer, history, marks and position, so
+you can switch freely between them with  :l ,  TAB  and  ^^  and come back
+to find things as you left them.
+
+
+5.2.  Escaping to a shell
+
+     :!cmd  runs cmd in the shell, on the terminal, and waits for
+RETURN before it shows the file again. A  %  in the command stands for
+the file name:  :!wc %  counts the words in the file (write it first).
+
+     ^Z  suspends tie. The shell's  fg  brings it back.
+
+
+5.3.  Marking and returning
+
+     mx  marks the cursor position with the letter  x .  'x  moves to
+the start of the marked line. As a motion it works with operators:
+c'a  cuts from the current line to the line marked a. Marks move
+with the text when lines are inserted or cut above them.
+
+     The mark  '  is set by every jump, so  ''  returns to where you
+were.
+
+
+5.4.  Adjusting the screen
+
+     ^L  redraws the screen, if something has written over it.
+
+     zt  puts the current line at the top of the screen,  zz  in the
+middle and  zb  at the bottom. With a count, the count is the line to
+show.
+
+
+
+5.5.  Files that change on disk
+
+     A file you are editing may be changed by another program: a
+formatter, a version control checkout, another editor. Tie notices,
+after each command and once a second while it waits for you to type.
+
+     If the buffer has no changes of yours, tie reads the file again,
+keeps the cursor on the same line, and says so on the status line.
+
+     If you have changed the buffer too, tie does not touch it. It tells
+you on the status line, the buffer line shows  !  after the name, and
+:w  refuses to write over the other change. Then choose:
+
+     :diff  (Diff)  show the differences, as diff -u, in +Errors:
+                    lines marked - are on disk, lines marked + in the
+                    buffer;  ^^  comes back
+     Get            take the file from disk, dropping your changes
+     :w!            keep the buffer, writing over the file on disk
+
+A file that was removed is treated the same way:  :w!  writes it back.
+:diff  works at any time, also when nothing changed on disk: it shows
+what you have not written yet.
+
+
+
+6.  Special topics
+
+
+6.1.  Line addresses and ranges
+
+     Commands on the status line can start with an address, which says
+what they work on. These are the addresses:
+
+     N        line N
+     .        dot, or the current line when dot is empty
+     $        the last line
+     'x       the line with mark x
+     /re/     the next match of re
+     ?re?     the previous match of re
+     #N       the empty text at character offset N
+     a+N a-N  N lines after or before address a
+     a,b      from a to b
+     ,        the whole file, as in sam ( a,  is from a to the end,
+              and  ,b  from the top to b)
+
+So  :1,10cut  cuts the first ten lines,  :.,$cut  from here to the end,
+:'a,'by  yanks the lines from mark a to mark b, and  :.,+5|cmd
+pipes six lines through cmd (section 7.4). An address alone moves there:  :$  goes to the last
+line, and  :/re/  makes the next match dot.
+
+     Without an address, a command uses dot if there is one, and the
+current line otherwise.
+
+     :cut  cuts,  :yank  yanks; each may be followed by a register name.
+They need an address or a selection; they never work on just the
+current line.
+
+     :e s/re/new/  substitutes new for the first match of re in the
+range, and  :e s/re/new/g  for every match. ( :e  is  :edit , sam's
+command language, section 7.9.) In new,  &  is the text that matched,
+\1  to  \9  are the parenthesized parts of re, and  \n  is a newline.
+Any punctuation can take the place of the slashes:  :e s#/usr#/opt# .
+Without an address it works on dot, or on the current line; the
+result is dot. The range is taken as one text, so without  g  only its
+first match changes, not the first match on every line.
+
+     :e ,s/re/new/g  changes the whole file. (vi's  %  for the whole
+file is  ,  in tie, as in sam.)
+
+     vi users note: vi's  :s  is  :e s  in tie;  :s  alone is select,
+after acme's button 1 (section 7.2), and  :e  no longer edits a file:
+look does that ( :l name ,  C ), and  :new name  starts a new one. The
+first match on every line, vi's  :%s/re/new/ , is  :e ,x/.*\n/s/re/new/ .
+
+
+6.2.  Options, set
+
+     Options change the way the editor works.  :set  shows them all.
+:set name  turns an option on,  :set noname  off, and  :set name=value
+gives it a value.  :set name?  shows it. Options have short names.
+
+     autoindent  ai    new lines start with the indent of the line above
+     expandtab   et    insert spaces instead of tabs
+     ignorecase  ic    searches ignore case
+     list        list  show tabs as ^I and line ends as $
+     mouse       mouse tie takes the mouse (default on; section 7.7)
+     number      nu    show line numbers
+     shiftwidth  sw    columns for > and <           (default 8)
+     tabstop     ts    columns per tab stop          (the terminal's)
+
+     There are no startup files yet.
+
+
+6.3.  Recovering lost lines
+
+     Cut text is in the unnamed register until the next cut or yank,
+so  p  brings back what you just cut. For anything older,
+use  u : undo goes back through all the changes made in the buffer.
+
+
+6.4.  Recovering lost files
+
+     If tie should crash, it writes each modified buffer to a file with
+.swap  added to its name, and tells you so.
+
+
+6.5.  Features for editing programs
+
+     With  autoindent  set, a new line starts with the white space of
+the line before it, which is what you want for most programs.  >>  and
+<<  shift lines by the shift width, and  >%  shifts all the lines of a
+bracketed block.  %  finds the matching bracket. Tabs are shown as the
+white space they stand for; with  list  set, you see them as ^I.
+
+
+6.6.  Filtering portions of the buffer
+
+     :|cmd  sends text to a shell command and replaces it with its
+output: dot, or the lines of an address. So  V}  then  :|fmt  RETURN
+formats a paragraph,  :.|date  RETURN  replaces the current line by
+the date, and  :.,|sort  RETURN  sorts the rest of the file;  :,|sort
+sorts all of it. With nothing selected and no address, the output goes
+in at the cursor. Section 7.4 has the other pipes.
+
+     vi does this with the  !  operator ( !}fmt ,  !!date ) and with
+:%!sort . tie has only the one way:  :!cmd  runs a command on the
+terminal and never changes the text.
+
+     If the command fails without output, the text is left alone, and
+what it printed on its error output is shown on the status line.
+
+
+6.7.  Macros
+
+     @x  executes register x: its text is read as though you typed it.
+@@  executes the same register again. To make a macro, type the
+commands into the file as text, yank them into a register, and cut
+them again. An ESC can be typed into the text with ^V ESC.
+
+
+
+7.  Dot and the three buttons
+
+
+7.1.  The selection
+
+     Tie, like acme and sam, keeps a selection: a stretch of text called
+dot. Dot is shown in reverse video, and while it is not empty the
+status line shows where it starts and ends, as  #q0,#q1 , counting
+characters from the start of the file. An ordinary motion in normal
+mode drops dot; ESC does too.
+
+     Acme has three mouse buttons, and almost everything is done with
+them: button 1 selects, button 2 executes, button 3 looks. Tie has
+the same three on the keyboard, side by side at the bottom left,
+typed with SHIFT:
+
+     Z      select      (button 1)
+     X      execute     (button 2)
+     C      look        (button 3)
+
+and on the status line as  :s ,  :x  and  :l , and on the mouse itself
+(section 7.7). Each takes dot if there is one, and otherwise the text
+at the cursor.
+
+     (In vi these keys are ZZ, X and C.) The choice is made in the file
+config.go (section 7.10), and is easily changed.
+
+
+7.2.  Select
+
+     Z  selects the word under the cursor. If the cursor is on a bracket
+or a quote, it selects the text up to the matching one instead, and on
+a blank it selects the line. Tie is then in visual mode: the motions of
+section 2 move the end of dot where the cursor is, while the other end
+stays, so  Z}  selects from the word to the end of the paragraph. Each
+further  Z  makes dot bigger: whole lines, then the paragraph, then
+the whole file.
+
+     v  starts visual mode at the single character under the cursor,
+and  V  with whole lines; then too the motions extend dot.  o  moves
+the cursor to the other end of dot, so you can adjust that end.
+Pressing  v  (or  V ) again, or ESC, leaves visual mode and drops dot.
+
+     A search makes dot too: the match. If dot is not empty when you
+type  Z  or  v , visual mode starts with it, so you can search for
+something and go on with what you found.
+
+     On the status line,  :s  selects: an address alone, as in  :5,9s
+or  :'a,.s , makes those lines dot; without one,  :s  selects the word
+at the cursor. A pattern address,  :/re/ , makes the match dot.
+
+
+7.3.  Commands on dot
+
+     In visual mode, these commands work on dot and leave visual mode:
+
+     c          cut dot
+     y          yank dot; dot stays selected, for what you do next
+     p          replace dot by the register
+     J          join the lines of dot
+     ~  u  U    swap the case, make lower case, make upper case
+     rx         replace every character of dot with x
+     :          a command line on dot, for instance a pipe (section 7.4)
+     <  >       shift the lines of dot, as in vi
+     X          execute dot (section 7.5)
+     C          look at dot (section 7.6)
+     Z          make dot bigger (section 7.2)
+
+     Because a search makes dot and  Z  takes it, a cut of one match is
+easy to repeat on the next:
+
+     /XX  RETURN      the first XX is dot
+     Zc               cut dot
+     n                the next XX is dot
+     .                and period cuts it
+
+To put something else in the place of every match, use  :e s  (6.1).
+
+
+7.4.  Pipes
+
+     These three come from acme. They take a shell command and work on
+dot (or on an address, if one is given):
+
+     |cmd     run cmd with dot as its input, and replace dot by its output
+     <cmd     replace dot by the output of cmd
+     >cmd     run cmd with dot as its input; its output goes to +Errors
+
+Type them after a colon:  :|sort ,  :<date ,  :>wc . (The keys  <
+and  >  shift lines, in visual mode as in normal mode.) After  |  and
+< , the new text is dot, so you can run it through
+another command, or look at it before you go on; and  u  takes it all
+back.
+
+     The output of a command ends with a newline. When dot does not
+end with a newline, that last newline is dropped, so that  <date  on
+a word in the middle of a line replaces the word and leaves the line
+in one piece.
+
+     With an empty dot,  <cmd  inserts at the cursor, and with an
+address,  :,|sort  sorts the file and  :/^}/<date  replaces the next
+line starting with } by the date.
+
+
+7.5.  Execute
+
+     In acme, any text on the screen can be executed: you point at it
+and the command runs.  X  executes dot, or, with nothing selected, the
+word under the cursor, taken as everything up to the blanks around it.
+:x  executes its argument, or dot, or the word:  :x make test .
+
+     What the text is decides what happens:
+
+     :cmd           a tie command, as if typed on the status line
+     |cmd <cmd >cmd a pipe on dot (section 7.4)
+     Write Get ...  a command (below)
+     anything else  a shell command
+
+     A shell command runs in the directory of the buffer. What it
+prints, output and errors alike, is added to a scratch buffer called
++Errors in that directory, which tie then shows; ^^ goes back. On the
+buffer line it is called after its directory, as doc/+Errors. So a
+file can carry the commands that go with it: a line saying  make test
+in your notes, or  :e ,s/teh/the/g .
+
+     Every command of the command line can be executed by its name with
+a capital letter, as acme's built-in commands are: Write is  :write ,
+Get  is  :get , and what follows the word is its argument. These are
+the ones you would use most:
+
+     Write          write the file (:w; acme calls it Put)
+     Get            read it again from disk, dropping changes (:get)
+     Diff           compare it with the file on disk (:diff, 5.5)
+     Undo  Redo     undo and redo (:undo, :redo)
+     Yank           copy dot into the register (:yank; needs a
+                    selection; acme calls it Snarf)
+     Cut            cut dot into the register (:cut; needs a selection)
+     Paste          replace dot by the register (:paste)
+     Look  text     look for text (:l)
+     Edit  cmd      a sam command (:e, section 7.9)
+     New  name      a buffer for a new file (:new)
+     Del  Del!      close the buffer (:q, :q!; the key d)
+     Exit           leave the editor (:qa; the key Q)
+
+The tag of every buffer (section 7.8) starts with some of these words,
+ready to be executed. A command that needs the
+terminal, like an
+editor or a pager, belongs on the status line instead:  :!less % .
+
+     Scratch buffers (+Errors, directory listings, this introduction,
+and a buffer without a file) never count as modified: d closes them at
+once, and they do not keep you from quitting. Text you type into a
+buffer without a name is lost when you close it, unless you write it
+with  :w name ; from then on it is a file like any other.
+
+
+7.6.  Look
+
+     C  looks at dot, or, with nothing selected, at the name under the
+cursor.  :l  looks at its argument, or dot, or the name:  :l main.go:40 .
+Looking means, in this order:
+
+     1.  If a look rule matches, do what it says. The rules are tie's
+         plumber, a table in config.go. As it comes, a URL, or the name
+         of a PDF, an image or an office document, is opened with the
+         desktop's program for it (open on macOS, xdg-open elsewhere),
+         and  ls(1)  shows that manual page in +Errors. The rules see the
+         whole non-blank word under the cursor, without brackets or
+         quotes around it, so a URL is taken whole.
+
+     2.  If the text names a file or a directory, open it. Relative names
+         are taken in the directory of the current buffer. A name may be
+         followed by an address, as compilers and grep -n print them:
+
+              file:12        line 12
+              file:12:5      line 12, column 5
+              file:/re/      the first match of re, which becomes dot
+              file:#40       the place 40 characters into the file
+
+     3.  Otherwise search for the next place the text occurs, and make
+         it dot.  n  goes on searching.
+
+     A directory opens as a listing, one entry per line, with
+subdirectories ending in / . Looking at an entry opens it.
+
+
+     Together, execute and look give most of what acme's mouse does:
+put the cursor on  ls , or select  grep -n pattern *.go , and press  X ,
+then press  C  on any line of the output.
+
+
+7.7.  The mouse
+
+     Tie takes the mouse, if the terminal reports it (almost all do),
+and uses its buttons as acme does:
+
+     button 1     click: put the cursor there.  Sweep: select the text
+                  swept over.  Double click: select the word, or the
+                  line when the click is at either end of a line, or
+                  the text between brackets or quotes.
+     button 2     execute the word clicked on, or dot if the click is
+                  in dot, or the text swept over.
+     button 3     look at the text clicked on, or dot, or the text swept.
+                  These work on words in the tag (7.8) as well.
+     1 then 2     with button 1 held down, click button 2: cut dot.
+     1 then 3     with button 1 held down, click button 3: paste over dot.
+     wheel        scroll.
+
+Button 2 leaves dot alone, so you can select some lines with button 1
+and then click button 2 on the word  |sort  anywhere on the screen to
+sort them, as in acme. Button 3 changes dot only when it searches.
+
+     While tie has the mouse, the terminal's own selection usually
+still works with SHIFT held down.  :set nomouse  gives the mouse back
+to the terminal.
+
+     Without three buttons (on a laptop, say), click with a key held
+down: Control-click is button 2 and Option-click (Alt-click) is
+button 3, sweeps included. (acme on macOS uses Option for button 2 and
+Command for button 3, but terminals keep Command-clicks to
+themselves.) Some
+terminals keep Option- or Control-clicks too (macOS terminals may want
+Option set to act as Meta, and may show a menu for Control-click).
+The keys  X  and  C  always do the work of buttons 2 and 3. Which
+modifier means which button is set in config.go.
+
+
+7.8.  The tag
+
+     Every buffer has a tag, as acme's windows do: a line of text shown
+on the left of the status line, at the bottom of the screen. It starts out
+as
+
+     Write Get Diff Undo Redo Yank Cut Paste New Del |fmt
+
+so that the builtins of section 7.5 are always at hand, to be executed
+with  X  or button 2. But the tag is ordinary text, and you can keep
+anything there: the commands you use with this file ( make test ,
+|sort ,  Edit ,s/teh/the/g ), patterns to look for, names of files.
+Each buffer keeps its own tag for as long as tie runs.
+
+     g  goes into the tag, and  g  or ESC comes back. In the tag the
+cursor and every editing command work on the tag's text: motions,
+insert, change, delete, undo.  g  in visual mode goes to the tag and
+keeps dot. What makes the tag useful is that everything else works on
+the buffer: the execute and look buttons, and commands typed after a
+colon, act on the buffer below the tag, and bring the cursor back to
+it. Dot in the buffer stays as it was while you are in the tag, so
+
+     V}               select a paragraph
+     g                go to the tag
+     $                move to its last word, |fmt
+     X                execute it: the paragraph is formatted
+
+works as acme's "select, then click |fmt with button 2" does. With the
+mouse there is no need to go to the tag at all: button 2 on a word in
+the tag executes it, and button 1 on the tag puts the cursor there.
+
+     The key and the starting text are keyTag and defaultTag in
+config.go.
+
+
+7.9.  Edit: sam's commands
+
+     :edit , or  :e , runs a command of sam's command language, as
+acme's Edit does. (In vi  :e  edits a file; in tie look does that.)
+
+     :e  [address] command
+
+The address is as in section 6.1. Without one, the command works on
+dot, or on the current line when dot is empty. The regular expressions
+can match across lines;  ^  and  $  match at the start and end of every
+line. The commands are:
+
+     s/re/text/     substitute text for the first match in the range;
+                    with g after it, for every match. In text,  &  is the
+                    match and  \1  its first parenthesized part.
+     x/re/ cmd      run cmd on every match of re; dot is the match
+     y/re/ cmd      run cmd on the text between the matches
+     g/re/ cmd      run cmd on the range if it contains a match
+     v/re/ cmd      run cmd on the range if it does not
+     a/text/        append text after the range
+     i/text/        insert text before the range
+     c/text/        change the range to text
+     d              delete the range
+     |cmd <cmd >cmd the pipes of section 7.4
+
+In text,  \n  is a newline. With no command, the address becomes dot.
+The patterns are those of section 2.2; here they can match across
+lines, and a newline is matched by  \n .
+The power is in x, which makes a loop of any command:
+
+     :e ,s/teh/the/g              every teh in the file
+     :e ,x/teh/c/the/             the same
+     :e ,x/.*\n/s/a/b/            the first a on every line (vi's :%s/a/b/)
+     :e ,x/.*\n/g/TODO/d          delete the lines that mention TODO
+     :e ,x/.*\n/i/> /             quote every line
+     :e ,x/foo\([^)]*\)/x/a/c/b/  change a to b, but only inside foo(...)
+
+     Unlike vi's  :s , which works line by line,  s  treats the range
+as one text: without  g  it changes only the first match in all of it.
+
+
+7.10.  config.go
+
+     The file config.go in tie's source holds what you are most likely
+to want to change: the three button keys, the tag key and what a new
+tag holds, whether tie takes the mouse, the builtin words of execute,
+and the look rules. A look rule is a
+pattern and a shell command, in which  "$1"  is the text looked at and
+"$2" ,  "$3" ...  are the parts of the pattern in parentheses:
+
+     {pattern: `\.pdf$`, cmd: `zathura "$1"`},
+     {pattern: `^#([0-9]+)$`, cmd: `open "https://example.com/issue/$2"`},
+
+or, instead of a command, a Go function that is called with the match.
+The commands run without tie waiting for them. Rebuild tie after
+changing the file.
+
+
+
+8.  Acknowledgements
+
+     The commands are Bill Joy's, from vi; dot, the pipes, the three
+buttons and the command language are Rob Pike's, from sam and acme.
+This note follows the plan, and occasionally the words, of Joy's "An
+Introduction to Display Editing with Vi".
+
+
+
+Appendix: character functions
+
+     This lists every character that is a command in normal mode, and
+what it does. "Jump" marks the commands that set the mark  ' .
+"Motion" marks those that can follow an operator.
+
+     ^B        page back (also Page Up)
+     ^D        scroll down half a screen
+     ^E        scroll down one line
+     ^F        page forward (also Page Down)
+     ^G        show the file name, status and position
+     ^L        redraw the screen
+     ^R        redo
+     ^U        scroll up half a screen
+     ^Y        scroll up one line
+     ^Z        suspend the editor
+     ^^        edit the alternate (previous) file
+     TAB       choose a buffer on the buffer line:  TAB 2  (5.1)
+     ESC       cancel a command; drops dot; in the tag, back to the buffer
+     arrows    motions: left, down, up, right; Home  0 , End  $
+     Delete    cut the character under the cursor (x)
+     "         name the register for the next command:  "a
+     #         motion, jump: search backward for the word under the cursor
+     $         motion: end of the line; with a count, of a later line
+     %         motion, jump: the matching bracket
+     '         motion, jump:  'x  the line of mark x;  ''  the previous context
+     ,         motion: repeat the last f F t T backwards
+     .         period: repeat the last change
+     /         motion, jump: search forward
+     0         motion: start of the line; also part of a count
+     1-9       a count for the next command
+     :         a command line (section 6.1)
+     ;         motion: repeat the last f F t T
+     <         operator: shift left;  <<  the line
+     >         operator: shift right;  >>  the line
+     ?         list the keys and commands as they are bound now
+     @         execute a register:  @a ;  @@  again
+     A         append at the end of the line
+     B         motion: back a big word
+     C         look (button 3) at dot or the name under the cursor (7.6)
+     E         motion: end of a big word
+     F         motion:  Fx  back to x on the line
+     G         motion, jump: line N (count), the last line by default
+     H         motion, jump: the top of the screen
+     I         insert before the first non-blank of the line
+     J         join lines
+     L         motion, jump: the bottom of the screen
+     M         motion, jump: the middle of the screen
+     N         motion, jump: the previous match
+     O         open a line above
+     P         paste before the cursor, or above the line
+     Q         leave the editor (:qa)
+     T         motion:  Tx  back to just after x
+     V         visual mode, by lines
+     W         motion: the next big word
+     X         execute (button 2) dot or the word under the cursor (7.5)
+     Z         select (button 1): the word; then motions extend dot (7.2)
+     ^         motion: first non-blank of the line
+     a         append after the cursor
+     b         motion: back a word
+     c         operator: cut;  cc  the line
+     d         close the buffer (Del); on the last one, leave the editor
+     e         motion: end of the word
+     f         motion:  fx  to the next x on the line
+     g         go into the tag (7.8), or back
+     h         motion: left
+     i         insert before the cursor
+     j         motion: down
+     k         motion: up
+     l         motion: right
+     m         mx  sets mark x
+     n         motion, jump: the next match
+     o         open a line below
+     p         paste after the cursor, or below the line
+     r         rx  replaces characters by x
+     t         motion:  tx  to just before x
+     u         undo
+     v         visual mode from the character: make dot
+     w         motion: the next word
+     x         cut characters (cl)
+     y         operator: yank;  yy  the line
+     z         zt, zz and zb put the current line at the top, middle, bottom
+     {         motion, jump: the previous empty line
+     }         motion, jump: the next empty line
+     ~         change the case of characters
+
+     In visual mode, the motions move the cursor end of dot, and these
+keys act on it:  c y p J ~ u U r : < > , as in section 7.3;  X
+executes dot and  C  looks at it;  g  goes to the tag and keeps dot.
+Z  grows dot to lines, the paragraph, the file.  o  goes to the other
+end;  v  and  V  switch the kind of selection or leave; ESC leaves.
+
+     In insert mode: ESC ends; RETURN starts a new line; BACKSPACE
+erases; ^W erases a word; ^U erases to the start of the line; ^V
+inserts the next character as it is; TAB inserts a tab (or spaces with
+expandtab); Delete deletes under the cursor; the arrows, Home and End
+move.
+
+     The mouse (7.7): button 1 clicks, sweeps and double clicks to
+select; button 2 executes; button 3 looks; 1-2 cuts and 1-3 pastes;
+the wheel scrolls.
+
+     On the status line, after an optional address (6.1). Each command
+has its name and at most one short form, and executed with a capital
+letter (Write, Get) it is the same command (7.5):
+
+     cut [x]        cut dot or the lines into register x
+     del  q  [!]    close the buffer           exit  qa  [!]  leave
+     diff           compare with the file on disk (5.5)
+     edit  e  cmd   a sam command (7.9)        execute  x  [text]  (7.5)
+     get            read the file again        help  this introduction
+     look  l [text] look (7.6)                 new [name]  a new file
+     paste [x]      replace dot by register x  redo  undo
+     select  s      select (7.2)               set opts  options (6.2)
+     tutor          the tutor                  wq [!]  write and close
+     write  w [!] [f]  write                   yank [x]  yank into register x
+     !cmd           run cmd on the terminal
+     |cmd  <cmd  >cmd   pipes on dot (7.4)

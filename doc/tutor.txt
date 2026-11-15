@@ -1,0 +1,990 @@
+=====================================================================
+=          W e l c o m e   t o   t h e   t i e   T u t o r          =
+=====================================================================
+
+     tie is the interactive editor. It is a screen editor in the
+     tradition of vi: you type commands, and the screen shows you
+     the text as it is changed. It also borrows an idea from acme:
+     the selected text, called dot, is something you can work on.
+
+     This tutor is a copy of a file. You can change it as much as
+     you like; the original is safe. Learning takes about an hour,
+     if you do the exercises. Reading is not enough: the commands
+     only become yours when your fingers know them.
+
+     First make sure the CAPS LOCK key is off.  Now press  j  a few
+     times, until Lesson 1.1 fills the screen.
+
+     At any time,  ?  shows a list of all the keys (and  d  closes it
+     again).
+
+     (Typing  tie -tutor  in the shell, or  :tutor  inside tie, gives
+     you a fresh copy at any time.)
+
+---------------------------------------------------------------------
+                    Lesson 1.1: MOVING THE CURSOR
+---------------------------------------------------------------------
+
+   The cursor is moved with the keys h, j, k and l:
+
+                          k            up
+                     h         l       left, right
+                          j            down
+
+   They sit under your right hand, so you never need to leave the
+   middle of the keyboard. If you forget: h is on the left, l on
+   the right, and j has a tail that points down.
+
+   1. Move the cursor around the screen until you are comfortable.
+
+   2. Hold down  j  until it repeats. Now you know how to get to the
+      next lesson.
+
+   The arrow keys also work, but you will be faster without them.
+
+   Note: tie has modes. In NORMAL mode, where you start, every key is
+   a command. If you are not sure which mode you are in, press <ESC>.
+   It always brings you back to normal mode.
+
+---------------------------------------------------------------------
+                    Lesson 1.2: LEAVING THE EDITOR
+---------------------------------------------------------------------
+
+   Read the whole lesson before you try it!
+
+   1. Press <ESC> to make sure you are in normal mode.
+
+   2. Type     :q! <RETURN>
+
+      This leaves the editor and throws away every change you made.
+
+   3. At the shell prompt, type     tie -tutor <RETURN>
+      to come back to a fresh copy of this tutor.
+
+   :q! is your emergency exit. The plain  :q  refuses to quit while
+   there are changes that have not been written.
+
+   4. If you have learned these steps by heart, do steps 1 to 3 now,
+      and come back here.
+
+---------------------------------------------------------------------
+                    Lesson 1.3: DELETING CHARACTERS
+---------------------------------------------------------------------
+
+   In normal mode, press  x  to delete the character under the cursor.
+
+   1. Move the cursor to the line below marked --->.
+
+   2. Put the cursor on each character that should not be there and
+      press  x  to delete it.
+
+---> Thhe coww jumpedd ovverr thhe mooon.
+
+   3. Do it until the line is right, then go to Lesson 1.4.
+
+   Note: Do not try to memorize what you read. Learn by doing.
+
+---------------------------------------------------------------------
+                    Lesson 1.4: INSERTING TEXT
+---------------------------------------------------------------------
+
+   In normal mode, press  i  to insert text before the cursor.
+
+   1. Move the cursor to the first line marked --->.
+
+   2. Put the cursor on the character AFTER the place where text is
+      missing, press  i  and type what is missing.
+
+   3. When the word is fixed, press <ESC> to go back to normal mode.
+      Repeat for the next word.
+
+---> Ther is text misng this .
+---> There is some text missing from this line.
+
+   While you insert, the bottom line shows  -- INSERT --  and the
+   cursor is a thin bar (on most terminals). <BACKSPACE> erases what you just typed.
+
+---------------------------------------------------------------------
+                    Lesson 1.5: APPENDING TEXT
+---------------------------------------------------------------------
+
+   Press  A  to add text at the end of the line.
+
+   1. Move the cursor to the first line marked --->. It does not
+      matter where on the line.
+
+   2. Press  A  and type the missing text. Press <ESC>.
+
+   3. Do the same for the second line.
+
+---> There is some text missing fro
+     There is some text missing from this line.
+---> There is also some text miss
+     There is also some text missing here.
+
+   Small  a  appends after the cursor character, just as  i  inserts
+   before it.
+
+---------------------------------------------------------------------
+                    Lesson 1.6: WRITING A FILE
+---------------------------------------------------------------------
+
+   :wq  writes the file and quits.
+
+   1. Leave the tutor with  :q!  (you will lose your changes).
+
+   2. Start tie on a new file:     tie practice.txt
+
+   3. Press  i , type a few lines, press <ESC>.
+
+   4. Type  :wq <RETURN>  to write the file and leave the editor.
+
+   5. Run  tie -tutor  again and move down to this lesson.
+
+---------------------------------------------------------------------
+                         LESSON 1 SUMMARY
+---------------------------------------------------------------------
+
+   1. h j k l (or the arrow keys) move the cursor.
+   2. tie file   starts the editor on a file.
+   3. <ESC>      returns to normal mode, whatever you were doing.
+   4. :q!        quits and throws the changes away.
+      :wq        writes and quits.
+   5. x          deletes the character under the cursor.
+   6. i          inserts before the cursor, a after it,
+      A          appends at the end of the line. <ESC> ends the insert.
+
+---------------------------------------------------------------------
+                    Lesson 2.1: CUTTING WORDS
+---------------------------------------------------------------------
+
+   cw  cuts a word. What you cut is kept in a register, so you can
+   paste it again (Lesson 3.1).
+
+   1. Move the cursor to the line marked --->.
+
+   2. Put the cursor on the first letter of a word that does not
+      belong, and type  cw . The word and the space after it go.
+
+---> There are a some words fun that don't belong paper in this line.
+
+   Note: when you type  c  nothing seems to happen. tie is waiting
+   for you to say what to cut.
+
+---------------------------------------------------------------------
+                 Lesson 2.2: OPERATORS AND MOTIONS
+---------------------------------------------------------------------
+
+   c is an OPERATOR. An operator does nothing by itself: it waits for
+   a MOTION, and works on the text the motion moves over.
+
+       operator   motion
+          c          w        cut to the start of the next word
+
+   Every motion is a command of its own as well. Try these, and watch
+   the cursor:
+
+       w   to the start of the next word     b   back a word
+       e   to the end of the word            $   to the end of the line
+       0   to the start of the line          ^   to the first non-blank
+
+   So  c$  cuts to the end of the line, and  cb  cuts the word before
+   the cursor.
+
+   1. Put the cursor after the period on the line below and type  c$
+
+---> Somebody typed the end of this line twice. end of this line twice.
+
+---------------------------------------------------------------------
+                        Lesson 2.3: COUNTS
+---------------------------------------------------------------------
+
+   A number before a motion repeats it:  3w  moves three words.
+
+   1. On the line below, try  2w , 3e , 0  and  4l .
+
+---> This is just a line with words you can move around in.
+
+   A number works with operators too:  c3w  (or  3cw ) cuts three
+   words.
+
+   2. Delete the capital words with one command each.
+
+---> This ABC DE line FGHI JK LMN OP of words is Q RS TUV cleaned up.
+
+---------------------------------------------------------------------
+                    Lesson 2.4: WORKING ON LINES
+---------------------------------------------------------------------
+
+   Typing an operator twice makes it work on whole lines:  cc  cuts
+   the current line,  3cc  three lines.
+
+   1. Delete the lines below that make no sense.
+
+--->  1)  Roses are red,
+--->  2)  Mud is fun,
+--->  3)  Violets are blue,
+--->  4)  I have a car,
+--->  5)  Clocks tell time,
+--->  6)  Sugar is sweet
+--->  7)  And so are you.
+
+---------------------------------------------------------------------
+                  Lesson 2.5: UNDO AND REDO
+---------------------------------------------------------------------
+
+   u  undoes the last change. Every command is one change, so after
+   inserting a whole paragraph one  u  takes it all away.
+   CTRL-R  (hold CTRL and press r) redoes what u undid.
+
+   1. On the line below, delete the doubled letters with  x .
+   2. Press  u  a few times, and  CTRL-R  a few times.
+
+---> Fiix the errors oon thhis line and reeplace them witth undo.
+
+---------------------------------------------------------------------
+                         LESSON 2 SUMMARY
+---------------------------------------------------------------------
+
+   1. An operator followed by a motion works on the text moved over:
+          cw  cut a word      c$  to end of line     cb  word before
+   2. Motions:  w b e  words,  0 ^ $  start and end of line.
+   3. A count repeats:  3w  ,  c2w  ,  2cw .
+   4. cc  cuts a line;  doubling any operator means "lines".
+   5. u  undoes,  CTRL-R  redoes.
+
+---------------------------------------------------------------------
+                       Lesson 3.1: PASTE
+---------------------------------------------------------------------
+
+   Deleted text is not lost: it is kept in a register.  p  pastes it
+   after the cursor,  P  before it. Lines go below (or above) the
+   current line.
+
+   1. Put the cursor on the first line below and press  cc .
+   2. Move to the line it belongs under and press  p .
+
+---> d) Can you learn too?
+---> b) Violets are blue,
+---> c) Intelligence is learned,
+---> a) Roses are red,
+
+   xp  swaps two characters:  teh  becomes  the .
+
+---------------------------------------------------------------------
+                    Lesson 3.2: REPLACE A CHARACTER
+---------------------------------------------------------------------
+
+   r  followed by a character replaces the character under the cursor.
+
+---> Whan this lime was tuoed in, someone pressed some wrojg keys!
+---> When this line was typed in, someone pressed some wrong keys!
+
+---------------------------------------------------------------------
+                     Lesson 3.3: CHANGING TEXT
+---------------------------------------------------------------------
+
+   To change text, cut it and type the new text:  ce  cuts to the end
+   of a word (without the space after it), and  i  inserts.
+
+   1. Put the cursor on the  l  of  lubw  and type  ce , then
+      iline <ESC> .
+
+---> This lubw has a few wptfd that mrrf changing usf the cut operator.
+---> This line has a few words that need changing using the cut operator.
+
+   2. Fix the rest of the line the same way.
+
+   3. Cut the end of this line with  c$  and type the right end with
+      a  (append after the cursor):
+
+---> The end of this line needs some help to make it like the second.
+---> The end of this line needs to be corrected using the  c$  command.
+
+---------------------------------------------------------------------
+                    Lesson 3.4: REPEAT A CHANGE
+---------------------------------------------------------------------
+
+   The period  .  repeats the last change, wherever the cursor is
+   now. (In tie this command is called "period", because "dot" means
+   something else: see Lesson 6.)
+
+   1. Put the cursor on the first  extra  below and type  cw .
+   2. Type  /extra <RETURN>  to get to the next one, then  .  to cut
+      it too. Then  n  and  .  for the last one.
+
+---> This line has extra words extra that extra do not belong.
+
+   A count before the period replaces the old count:  3.
+
+   Changes made with  cc ,  x ,  i ,  o ,  >> ... all repeat.
+
+---------------------------------------------------------------------
+                         LESSON 3 SUMMARY
+---------------------------------------------------------------------
+
+   1. p  pastes the last cut or yanked text after the cursor,  P
+      before it.
+   2. r  replaces one character.
+   3. c  cuts:  cw  cc  c$ ; to change, cut and insert:  ce  then  i .
+   4. .  (period) repeats the last change.
+
+---------------------------------------------------------------------
+                 Lesson 4.1: WHERE AM I?  GOING PLACES
+---------------------------------------------------------------------
+
+   CTRL-G  shows the file name and the line you are on.
+
+   G  goes to the last line,  1G  to the first.  A number before  G
+   goes to that line:  42G .  So does  :42 <RETURN> .
+
+   1. Press CTRL-G and remember the line number.
+   2. Press  G , then  1G .
+   3. Type the line number you remembered, then  G . You are back.
+
+   ''  (two single quotes) goes back to where you were before the
+   last jump.
+
+   The bottom right of the screen always shows the line and column.
+
+---------------------------------------------------------------------
+                       Lesson 4.2: SEARCHING
+---------------------------------------------------------------------
+
+   /  followed by a pattern and <RETURN> searches forward.  n  finds
+   the next match,  N  goes the other way. When the search reaches the
+   end it wraps to the top.
+
+   1. Type  /errroor <RETURN>  and press  n  a few times.
+
+---> "errroor" is not the way to spell error;  errroor is an error.
+
+   The found text is shown in reverse: it becomes DOT, the selection.
+   Lesson 6 shows what you can do with it.
+
+   Patterns are regular expressions:  /[0-9]+  finds a number,
+   /^func  finds "func" at the start of a line,  \<the\>  finds the
+   word "the" but not "other".  *  searches for the word under the
+   cursor.
+
+---------------------------------------------------------------------
+                 Lesson 4.3: MATCHING PARENTHESES
+---------------------------------------------------------------------
+
+   %  jumps to the bracket that matches the one under the cursor:
+   ( ) [ ] { } . If the cursor is not on one, the first on the line
+   is used.
+
+   1. Put the cursor on the first ( below, press  % , and  %  again.
+
+---> This ( is a test line with ('s, ['s ] and {'s } in it. ))
+
+   2. Try  c%  on the second  ( .
+
+---------------------------------------------------------------------
+                     Lesson 4.4: SUBSTITUTE
+---------------------------------------------------------------------
+
+   :e s/old/new/  replaces the first  old  on the line with  new .
+   :e s/old/new/g  replaces every  old  on the line.
+   ( :e  is short for  :edit , which runs sam's commands, as acme's
+   Edit does;  s  is one of them. Lesson 6.9 shows the others.
+   vi users:  :s  alone is select in tie, Lesson 6.1.)
+
+   1. Move to the line below and type  :e s/thee/the/ <RETURN> .
+      Then try it again with  g  at the end.
+
+---> thee best time to see thee flowers is in thee spring.
+
+   An address in front gives the lines to work on:
+
+       :e ,s/old/new/g     the whole file ( ,  is all of it)
+       :e 5,9s/old/new/g   lines 5 to 9
+       :e .,$s/old/new/g   from here to the end
+
+   Without g, only the first match in all of the lines changes, not
+   the first on each line: the lines are taken as one text.
+
+   In the replacement,  &  stands for the matched text and  \1  for
+   the first parenthesized group.
+
+---------------------------------------------------------------------
+                         LESSON 4 SUMMARY
+---------------------------------------------------------------------
+
+   1. CTRL-G  where am I.   G  last line,  1G  first,  NG  line N.
+      ''  back to where you were.
+   2. /re  search,  n N  next and previous.
+      *  the word under the cursor.
+   3. %  matching bracket.
+   4. :e s/old/new/g  substitute;  :e ,s/old/new/g  in the whole file.
+
+---------------------------------------------------------------------
+                Lesson 5.1: OPENING LINES; MORE INSERTS
+---------------------------------------------------------------------
+
+   o  opens a new line below the cursor and starts inserting,
+   O  opens one above.
+
+   1. Put the cursor on the line below, press  o  and type a line.
+
+---> Open up a line below this one.
+
+   I  inserts at the start of the line (after the indent).
+   With a count, the insert is repeated:  10i-<ESC>  draws a line.
+
+---------------------------------------------------------------------
+                   Lesson 5.2: YANK AND PASTE
+---------------------------------------------------------------------
+
+   y  is the yank (copy) operator:  yw  yanks a word,  yy  a line.
+   Then  p  pastes a copy. (Plan 9 and acme call yanking "snarfing";
+   their Snarf is the Yank of tie's tag.)
+
+   1. Yank the first line below with  yy , move to the last line and
+      paste it below with  p .
+
+---> a) This line is copied.
+---> b) Paste the copy below this line.
+
+   A register can be named with  "  and a letter:  "ayy  yanks into
+   register a,  "ap  pastes it.  "Ayy  (capital) appends to register a.
+
+---------------------------------------------------------------------
+                Lesson 5.3: THE SHELL AND OTHER FILES
+---------------------------------------------------------------------
+
+   :!cmd  runs a shell command. Press <RETURN> to come back.
+
+   1. Type  :!ls <RETURN> .
+
+   :w file   writes the buffer to another file.
+   :<cmd     puts the output of a command at the cursor:  :<date
+             and  :<cat file  reads in a file (Lesson 6.3 has more).
+   :l file   opens another file (look, Lesson 6.6);  CTRL-^  goes back.
+   :new file starts a new one, made on disk when you  :w  it.
+             The top line of the screen lists the files you have open.
+
+   2. Put the cursor on the period at the end of this line and type
+      :<date <RETURN> . The date goes in at the cursor.
+
+---------------------------------------------------------------------
+                       Lesson 5.4: FILTERS
+---------------------------------------------------------------------
+
+   |cmd  on the command line sends lines through a shell command and
+   puts what comes out in their place. It works on the selection, or
+   on the lines an address names.
+
+   1. Put the cursor on the first line below, select it and the three
+      after it with  V3j , and type  :|sort <RETURN> .
+
+---> pear
+---> apple
+---> orange
+---> banana
+
+   :,|sort  does the same for the whole file:  ,  alone means all of
+   it. Lesson 6.3 says more about these pipes.
+
+   (vi users: the  !  operator and  :%!  are not in tie;  |  does
+   their work.  :!cmd  still runs a command on the terminal.)
+
+---------------------------------------------------------------------
+                       Lesson 5.5: OPTIONS
+---------------------------------------------------------------------
+
+   :set  changes how tie works.  :set  alone shows all options.
+
+       :set ic      ignore case in searches  (:set noic  to undo)
+       :set nu      show line numbers
+       :set list    show tabs as ^I and the line ends as $
+       :set ai      autoindent: a new line starts with the indent
+                    of the one before
+       :set ts=4    tab stops every 4 columns
+       :set sw=4    the shift width for  >>  and  <<
+       :set et      expand tabs into spaces
+
+   1. Try  :set nu , then  :set nonu .
+
+   >>  shifts a line right by the shift width,  <<  left.  >  and  <
+   are operators:  >3j  shifts four lines.
+
+---------------------------------------------------------------------
+                         LESSON 5 SUMMARY
+---------------------------------------------------------------------
+
+   1. o O  open a line below or above.   I  insert at line start.
+   2. y  yanks;  yy  a line;  "x  names a register.
+   3. :!cmd  shell.  :w file  :<cmd  :l file  :new file  CTRL-^
+   4. :|cmd  filters lines through a command:  V3j  :|sort ,  :,|sort .
+   5. :set  options:  ic  nu  list  ai  ts  sw  et .
+
+---------------------------------------------------------------------
+                     Lesson 6.1: DOT, THE SELECTION
+---------------------------------------------------------------------
+
+   This is where tie differs from vi. Like acme, tie keeps a
+   SELECTION, called DOT. Dot is a piece of text, shown in reverse
+   video; the bottom line shows where it starts and ends, as #q0,#q1
+   (offsets counted in characters from the start of the file).
+
+   Acme does nearly everything with three mouse buttons: the first
+   SELECTS, the second EXECUTES, the third LOOKS. Tie has the same
+   three buttons on the keyboard, side by side at the bottom left,
+   with SHIFT:
+
+          Z  select          X  execute          C  look
+
+   (In vi these keys are ZZ, X and C.)
+
+   Z  selects the word under the cursor and starts VISUAL mode: now
+   any motion moves the cursor end of dot. Pressing  Z  again makes
+   dot bigger: the line, then the paragraph, then the whole file.
+
+   1. Put the cursor on  quick  below and press  Z .  Press  e  twice
+      to take in two more words.  <ESC>  gives up and drops dot.
+
+---> The quick brown fox jumps.
+
+   2. Press  Z  on  quick  again, and  Z  again: now the whole line
+      is dot. Press  c  to cut it, and  u  to bring it back.
+
+   On a bracket or a quote,  Z  selects what is inside:
+
+---> call(with, some, arguments) and "a quoted string"
+
+   3. Put the cursor on the  (  and press  Z , then  <ESC> . Try the
+      first  "  too.
+
+   There are other ways to make dot:
+
+     -  v  starts visual mode at a single character,  V  with whole
+        lines. Then motions extend dot, as after  Z .
+        o  jumps to the other end of dot.
+     -  A search:  /pattern  makes the match dot.
+
+   Any motion outside visual mode (h, w, j...) drops dot again.
+
+---------------------------------------------------------------------
+                   Lesson 6.2: COMMANDS ON DOT
+---------------------------------------------------------------------
+
+   With dot made, these keys act on it:
+
+       c       cut dot
+       y       yank dot (dot stays)    p       replace dot by the register
+       ~ u U   swap, lower, upper case J       join the lines
+       r x     replace each character with x
+
+   1. Select  shout  with  Z , then press  U .
+
+---> Please do not shout.
+
+   2. Select the three lines below with  V  and  jj , and press  J .
+
+---> one
+---> two
+---> three
+
+---------------------------------------------------------------------
+                    Lesson 6.3: PIPES, AS IN ACME
+---------------------------------------------------------------------
+
+   Three commands from acme work on dot:
+
+       |cmd    pipe dot through cmd: dot is replaced by the output
+       <cmd    replace dot by the output of cmd
+       >cmd    send dot to cmd; what it prints goes to +Errors
+
+   Type them on the command line:  :|sort ,  :<date ,  :>wc . (The
+   keys  <  and  >  shift lines, as in vi.)
+
+   The new text becomes dot, so you can pipe it again, or undo it.
+
+   1. Select the four lines below with  V  and  3j , and type
+      :|sort <RETURN> .
+
+---> delta
+---> alpha
+---> charlie
+---> bravo
+
+   2. With dot still there, type  :|tr a-z A-Z <RETURN> . Every
+      command line works on dot when you do not give an address.
+
+   3. Put the cursor on  NOW  below, select it with  Z , and type
+      :<date <RETURN> .
+
+---> The time is NOW.
+
+      date ends its output with a newline. When dot does not end with
+      a newline, tie drops that last newline, so the line stays whole.
+
+   4. Select a few lines and type  :>wc <RETURN> . The count appears
+      in a buffer called +Errors.  CTRL-^  brings you back here.
+
+   Addresses work too:  :,|sort  sorts the file,  :/^func/<date  ...
+   :.  means dot (or the current line when dot is empty) and
+   ,  alone means the whole file, as in sam.
+
+---------------------------------------------------------------------
+               Lesson 6.4: SEARCH, CUT, REPEAT
+---------------------------------------------------------------------
+
+   A search makes dot, and  Z  (like  v ) starts from dot when there
+   is one. So a cut can be repeated on each match:
+
+       /XX <RETURN>      find the first XX; it is dot
+       Z c               cut dot
+       n                 the next XX is dot
+       .                 period cuts it too
+
+   1. Do that on the line below until all the XX are gone.
+
+---> Remove XXthe XXmarkers XXfrom this XXline.
+
+   To put something else in the place of each match, use  :e s
+   (Lesson 4.4) on dot:
+
+---> The cat sat on the mat. The cat was black.
+---> Another cat came along, and both cats left.
+
+   2. Select both lines with  V  and  j , and type
+          :e s/\<cat\>/dog/g <RETURN>
+      \<  and  \>  match only whole words, so "cats" stays.
+
+---------------------------------------------------------------------
+                  Lesson 6.5: EXECUTE  (X)
+---------------------------------------------------------------------
+
+   In acme any text can be a command: you point at it and it runs.
+   In tie, put the cursor on it and press  X . X executes dot, or, if
+   nothing is selected, the word under the cursor (everything up to
+   the blanks around it).
+
+   Text starting with  :  is a tie command;  |cmd ,  <cmd  and  >cmd
+   are pipes on dot; a few words such as  Write  (write the file) and
+   Undo  are built in, as in acme (Lesson 6.8 shows where they live).
+   Anything else goes to the shell.
+   What a shell command prints is put into a buffer named +Errors,
+   and tie shows it. CTRL-^ comes back.
+
+   1. Put the cursor on  date  below and press  X .  CTRL-^ .
+
+---> date
+
+   2. A command with arguments has blanks in it: select it first.
+      Select the next line with  V  and press  X .
+
+     ls -l /tmp
+
+   3. Select the next line with  V  and press  X . Then  :set nonu .
+
+     :set nu
+
+   4. Press  x  on the first  x  below, then put the cursor on  Undo
+      and press  X .
+
+---> x Undo
+
+   On the command line,  :x  does the same:  :x date ,  or  :x  alone
+   for dot or the word. This is how a file can hold the commands you
+   use with it.
+
+---------------------------------------------------------------------
+                    Lesson 6.6: LOOK  (C)
+---------------------------------------------------------------------
+
+   C  looks at dot, or at the name under the cursor. Looking means:
+
+     -  If it is a URL, or the name of a PDF or an image, open it with
+        the desktop's program for it.  ls(1)  shows a manual page.
+     -  If it names a file or a directory, open it. (Lesson 7.2.)
+     -  Otherwise search for the next place it occurs: it becomes dot.
+
+   1. Put the cursor on  needle  and press  C . Press  C  again.
+
+---> Looking for a needle in a haystack: needle, hay, needle.
+
+   2. Press  C  on  ls(1)  below. CTRL-^ comes back.
+
+---> See ls(1).
+
+   3. Press  C  on the URL. (Your browser should open.)
+
+---> https://go.dev/doc/
+
+   The rules for what to do with which text are a table in the file
+   config.go of tie's source, so you can add your own: open .epub
+   files with your reader, or make  #123  open an issue page.
+
+   On the command line,  :l text  looks at text:  :l needle .
+
+---------------------------------------------------------------------
+                    Lesson 6.7: THE MOUSE
+---------------------------------------------------------------------
+
+   If your terminal reports the mouse, tie uses its buttons as acme
+   does:
+
+       button 1    click to move; sweep to select; double-click a
+                   word (or a line end, or a bracket) to select it
+       button 2    execute what you click on (or the text swept)
+       button 3    look at what you click on
+       1 and 2     hold button 1, click 2: cut dot
+       1 and 3     hold button 1, click 3: paste over dot
+
+   Button 2 does not change dot. So:
+
+   1. Sweep the four lines below with button 1. Then click button 2
+      on the word  |sort .
+
+---> |sort
+---> pear
+---> apple
+---> fig
+
+      Only the three fruit lines? Sweep just them first, then click
+      |sort  with button 2: it applies to dot, wherever you click.
+
+   No middle button? Control-click is button 2 and Option-click
+   (Alt-click) is button 3, if your terminal passes them on.
+
+   Hold SHIFT to use your terminal's own selection.  :set nomouse
+   gives the mouse back to the terminal.
+
+---------------------------------------------------------------------
+                    Lesson 6.8: THE TAG
+---------------------------------------------------------------------
+
+   Look at the bottom line of the screen. On the left is the TAG of this
+   buffer, as in acme: a line of commands,
+
+       Write Get Diff Undo Redo Yank Cut Paste New Del |fmt
+
+   ready to be executed with  X  (or button 2). On the right is where
+   the cursor is. A message takes the tag's place until the next key.
+   Every buffer has its own tag, and it is text like any other: you
+   can change it and keep your own commands there.
+
+   g  goes into the tag, and  g  (or <ESC>) comes back. In the tag
+   all the editing commands work.  X ,  C  and  :  commands always
+   work on the buffer below, and take you back there.
+
+   1. Delete the  x  on the line below with  x . Press  g , move to
+      Undo  with  www  and press  X . The  x  is back, and you are in the text again.
+
+---> x marks the spot
+
+   2. The tag works on dot, which stays as it was while you are in the
+      tag. Select the four lines below with  V  and  3j , press  g ,
+      add a command at the end with  A |sort <ESC> , and press  X .
+
+---> delta
+---> alpha
+---> charlie
+---> bravo
+
+   3. Press  g  again: your  |sort  is still there, for the next time.
+      Each buffer keeps its own tag while tie runs.
+
+   With the mouse it is quicker still: button 2 on a word in the tag
+   executes it, without moving the cursor at all.
+
+   The tag starts with defaultTag in config.go; the key  g  is keyTag.
+
+---------------------------------------------------------------------
+                    Lesson 6.9: EDIT
+---------------------------------------------------------------------
+
+   :edit  (or  :e ) takes a command of sam's language, as acme's Edit
+   does. You know  s  from Lesson 4.4. The best of them is  x : it runs
+   a command on every match.
+
+       :e ,s/old/new/g        substitute in the whole file ( ,  is all)
+       :e ,x/old/c/new/       the same, with x and change
+       :e x/re/d              delete every match in dot (or the line)
+       :e ,x/.*\n/g/re/d      delete every line that contains re
+
+   1. Select the three lines below with  V  and  jj , then type
+          :e x/[0-9]+/c/N/ <RETURN>
+
+---> item 1 costs 20
+---> item 2 costs 300
+---> item 3 costs 4
+
+   2. Undo, select them again, and type
+          :e x/.*\n/i/- /  <RETURN>
+
+   :help  explains the other commands:  y ,  g ,  v ,  a ,  i ,  d .
+
+---------------------------------------------------------------------
+                         LESSON 6 SUMMARY
+---------------------------------------------------------------------
+
+   1. Dot is the selection. Z selects the word (again: line, paragraph,
+      file); v and V select from the cursor; a search makes dot.
+   2. On dot:  c y p  ~ u U  J  r .
+   3. Pipes on dot:  :|cmd  :<cmd  :>cmd ; any  :  command without an
+      address works on dot.
+   4. /re  Z c  then  n .  cuts match after match;  :e s/re/new/g
+      on dot changes them.
+   5. X executes dot or the word:  :cmd , a pipe, a builtin like Write
+      or Undo, or a shell command whose output goes to +Errors.  :x
+   6. C looks: plumb rules, then files, then search.  :l
+   7. The mouse: 1 selects, 2 executes, 3 looks.
+   8. g  goes to the tag and back: the buffer's line of commands.
+   9. :e  runs sam commands:  ,s/a/b/g   ,x/re/c/text/
+
+---------------------------------------------------------------------
+                 Lesson 7.1: MARKS AND MACROS
+---------------------------------------------------------------------
+
+   ma  sets mark a at the cursor.  'a  goes to the line of mark a.
+   Marks work with operators:  c'a  cuts the lines from here to
+   mark a.  :'a,.cut  does the same.
+
+   @a  executes register a as if you typed it.  @@  does it again.
+   So you can write a command into the file, yank it into a register
+   and run it. Only one thing needs care: <ESC> ends an insert, so to
+   put an ESC into the text you type CTRL-V first. In insert mode
+   CTRL-V takes the next key literally.
+
+   1. Open a line below this one with  o , and type
+          A!  CTRL-V <ESC>  <ESC>
+      The new line shows  A!^[  ( ^[  is how ESC looks on the screen).
+
+   2. Press  0  to go to its start, then  "ay$  to yank it into
+      register a without the line end, and  cc  to cut it.
+
+   3. Move to the first line marked ---> and type  @a .
+      Then  j@@  for the second one.
+
+---> Hello
+---> World
+
+---------------------------------------------------------------------
+              Lesson 7.2: OPENING FILES FROM THE TEXT
+---------------------------------------------------------------------
+
+   Look ( C , Lesson 6.6) opens the file whose name is under the
+   cursor. You do not type the name: it is already there. CTRL-^
+   returns.
+
+   1. Put the cursor on the name below and press  C . Then CTRL-^.
+
+---> /etc/hosts
+
+   A name may be followed by an address, the way compilers and
+   grep -n print them:  file:12  goes to line 12,  file:12:5  to
+   column 5 as well, and  file:/re/  to the first match of re.
+
+   2. Try  C  on this one; it opens  /etc/hosts  at line 3.
+
+---> /etc/hosts:3
+
+   A directory opens as a list of its entries, one per line, and  C
+   on an entry opens that. Subdirectories end in / .
+
+   3. C  on  /etc/  below, find  hosts  in the list, and  C  again.
+
+---> /etc/
+
+   This works on any text, so also on the output of commands. Relative
+   names are taken in the directory of the buffer they appear in.
+
+   4. Put the cursor on  ls  below and press  X  (Lesson 6.5).
+      The +Errors buffer lists the files next to this tutor. Find the
+      tutor's own name, tutor-something.txt, put the cursor on it and
+      press  C : you are back here.
+
+---> ls
+
+   5. Select this line with  V  and press  X . Each output line names
+      this file and a line number;  C  on one goes there.
+
+     grep -Hn LESSON tutor-*.txt
+
+   With dot selected,  C  opens the file dot names, whatever
+   characters the name has.
+
+---------------------------------------------------------------------
+                    Lesson 7.3: BUFFERS
+---------------------------------------------------------------------
+
+   Every file you open stays open in its own buffer, with its own
+   undo history, marks, cursor and tag. The top line of the screen
+   lists the buffers by number; the one you are in is in reverse
+   video, and a  +  marks those with unwritten changes. A click on a
+   name goes there. The bottom line shows the tag of the buffer you
+   are in (Lesson 6.8).
+
+       d            close this buffer, as acme's Del (on the last one,
+                    leave tie)
+       Q            leave tie, closing all buffers
+       :del  :q     as d. On a modified buffer they only warn: a second
+                    d  right after closes it, and so does  :q! 
+       :wq          write the buffer and close it
+       :qa  :qa!    as Q
+       TAB 2        go to buffer 2: TAB puts the cursor on the top line,
+                    the number of a buffer goes there
+       TAB h l      or move along the top line, and RETURN to go there;
+                    <ESC> stays where you are
+       CTRL-^       the buffer you were in before
+       :l TAB       on the command line, TAB completes file names;
+                    TAB again cycles through the choices
+
+   :w  in a buffer that has no file name asks for one.
+
+   1. Look at the top line: it shows what you opened in this lesson.
+      Go to the +Errors buffer with TAB and its number, and close it
+      with  d .
+
+---------------------------------------------------------------------
+                Lesson 7.4: FILES THAT CHANGE ON DISK
+---------------------------------------------------------------------
+
+   When another program changes a file you are editing, tie notices.
+   If you have not changed the buffer, it simply reads the file again.
+   If you have, the top line shows  !  after the name, the status line
+   tells you, and  :w  will not write over the other change. Then:
+
+       :diff  or  Diff     see the differences:  -  is on disk,  +  is
+                           yours.  CTRL-^  comes back.
+       Get                 take the file from disk
+       :w!                 keep yours and write it
+
+   1. Write this tutor with  :w , and press CTRL-G to see its full
+      name. In another terminal, add a line to it:
+          echo extra >> /the/name/CTRL-G/showed
+      Come back: the line  extra  is at the end, read again.
+
+   2. Now change a line here, and change the file again in the other
+      terminal. Look at the top line, and try  Diff  in the tag: press
+      g , move to  Diff , and press  X .
+
+   :diff  also shows, at any time, what you have changed but not yet
+   written.
+
+---------------------------------------------------------------------
+                        Lesson 7.5: WHAT NEXT
+---------------------------------------------------------------------
+
+   This concludes the tie tutor. You now know enough to use tie for
+   all your editing. There is more:
+
+       ?         lists every key and command, as they are bound now.
+
+       :help     opens the introduction, a longer and more careful
+                 description of tie in the manner of Bill Joy's
+                 "An Introduction to Display Editing with Vi".
+                 Its appendix lists every command.
+
+       config.go in tie's source holds the button keys, the builtin
+                 words of execute, and the look rules. Change it and
+                 rebuild to make tie yours.
+
+   Leave the tutor with  :q! .  Happy editing.
+
+=====================================================================
