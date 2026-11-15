@@ -1529,3 +1529,27 @@ func TestDefaultOptions(t *testing.T) {
 		t.Errorf("a new editor has %+v, config.go says %+v", e.opt, want)
 	}
 }
+
+// Typing into an empty buffer, RETURN starts the next line at once.
+func TestInsertIntoEmpty(t *testing.T) {
+	for _, tt := range []struct {
+		name, keys, want string
+		line             int
+	}{
+		{"RETURN", "iabc\r", "abc\n\n", 1},
+		{"RETURN, text", "iabc\rd", "abc\nd\n", 1},
+		{"two RETURN", "iabc\r\r", "abc\n\n\n", 2},
+		{"TAB BS", "i\t\x7f", "\n", 0},
+		{"o", "oab", "\nab\n", 1},
+		{"o RETURN", "oab\r", "\nab\n\n", 2},
+	} {
+		e := testEditor("")
+		e.feed(tt.keys)
+		if got := string(e.f.t.r); got != tt.want {
+			t.Errorf("%s: text %q, want %q", tt.name, got, tt.want)
+		}
+		if ln := e.f.line(e.f.cur); ln != tt.line {
+			t.Errorf("%s: cursor on line %d, want %d", tt.name, ln, tt.line)
+		}
+	}
+}

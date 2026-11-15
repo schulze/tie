@@ -165,6 +165,12 @@ func (e *Editor) insertMode() []rune {
 	e.mode = Insert
 	var typed []rune
 	add := func(r rune) {
+		// Text typed at the very end goes into a line: in an empty buffer,
+		// or after the last newline, the line it starts needs a newline
+		// of its own, or RETURN would only end it.
+		if n := f.t.Len(); f.cur == n && (n == 0 || f.t.At(n-1) == '\n') {
+			f.insert(f.cur, []rune{'\n'})
+		}
 		f.insert(f.cur, []rune{r})
 		f.cur++
 		typed = append(typed, r)
