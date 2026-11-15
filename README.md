@@ -21,9 +21,9 @@ Both are embedded in the binary. Working on the code: see `AGENTS.md`.
 
 | acme       | key | command | mouse    | with nothing selected, takes |
 |------------|-----|---------|----------|------------------------------|
-| select     | `Z` | `:s`    | button 1 | the word (`Z` again: line, paragraph, file) |
-| execute    | `X` | `:x`    | button 2 | the non-blank word under the cursor |
-| look       | `C` | `:l`    | button 3 | the file name / word under the cursor |
+| select     | `s` | `:s`    | button 1 | the word (`s` again: line, paragraph, file) |
+| execute    | `z` | `:x`    | button 2 | the non-blank word under the cursor |
+| look       | `t` | `:l`    | button 3 | the file name / word under the cursor |
 
 * **Execute**: `:cmd` → tie command; `|cmd <cmd >cmd` → pipe on dot;
   a capitalized command name (`Write`, `Get`, `Diff`, `Undo`, `Yank`,
@@ -42,9 +42,9 @@ Both are embedded in the binary. Working on the code: see `AGENTS.md`.
   Control-click is button 2 and Option-click button 3, set in
   `config.go` (acme on macOS uses Option and Command; terminals do not
   report Command).
-* The keys take the place of vi's `ZZ`, `X`, `C`; `:s` and `:x` of vi's
-  substitute and xit (use `:e s/…/…/` and `:wq`). The bindings are in
-  `config.go`.
+* The keys take the place of vi's `s`, `z` (`zt zz zb`) and `t` (`tx`);
+  `:s` and `:x` of vi's substitute and xit (use `:e s/…/…/` and `:wq`).
+  The bindings are in `config.go`.
 * `c` cuts (vi's `d`): `cw`, `cc`, `c$`, `c` on dot; to change text, cut
   and insert. `d` closes the buffer, as acme's Del.
 * Each command has one name and at most one short form: `:write` `:w`,
@@ -53,14 +53,14 @@ Both are embedded in the binary. Working on the code: see `AGENTS.md`.
 
 ## Dot
 
-* `Z`, `v`, `V` and any motion make dot; a search (`/re`, `n`, `*`) makes
+* `s`, `v`, `V` and any motion make dot; a search (`/re`, `n`, `*`) makes
   the match dot, as does `:/re/` and `:5,9s`. Other motions drop it.
 * On dot: `c y p J ~ u U r`, and `:` commands, which default to dot.
 * Pipes from acme: `:|cmd`, `:<cmd`, `:>cmd`. Visual `< >` shift, as in vi. There is no `!`
   filter and no `%`: filter with `|`, and `,` is the whole file (sam).
 * `:edit` (`:e`) runs sam's command language: `,s/a/b/g`,
   `,x/re/c/text/`, `x/.*\n/g/re/d`, `y`, `g`, `v`, `a`, `i`, `c`, `d`.
-* `Z` or `v` with a non-empty dot starts from it, so `/re` `Zc` `n` `.`
+* `s` or `v` with a non-empty dot starts from it, so `/re` `sc` `n` `.`
   cuts match after match.
 * Files changed on disk are read again if the buffer is clean; otherwise
   `!` on the buffer line, `:w` refuses, and `:diff` (`Diff`) shows the

@@ -85,8 +85,8 @@ was.
 BACKSPACE, TAB. A control character, typed by holding CTRL and
 pressing a letter, is written with a circumflex:  ^D  is CTRL and d.
 Commands are shown in bold where this note is typeset and between
-spaces where it is not, like  cw .  Commands are case sensitive:  c
-and  C  are different commands.
+spaces where it is not, like  cw .  Commands are case sensitive:  p
+and  P  are different commands.
 
 
 1.5.  Arrow keys
@@ -140,8 +140,8 @@ closing it leaves the editor.  Q  (or  :exit , short  :qa ) leaves the editor at
 once, from any file, unless some file has unwritten changes, and then
 it tells you which;  :qa!  leaves regardless.
 
-     (vi's  ZZ  and  :x  write and quit. In tie  Z  and  X  are buttons,
-and  :x  executes text; see section 7.)
+     (vi's  ZZ  and  :x  write and quit. In tie  :x  executes text; see
+section 7.)
 
      Leave the editor now, and start it again on  junk .
 
@@ -219,8 +219,8 @@ empty line counts as a word.
 character and  $  to its end.
 
      fx  moves to the next  x  on the line, and  Fx  to the previous.
-tx  stops just before it, and  Tx  just after.  ;  repeats the last of
-these, and  ,  repeats it in the other direction.
+;  repeats the last of these, and  ,  repeats it in the other
+direction.
 
      %  moves to the bracket matching the one under the cursor. It knows
 () [] and {}. If the cursor is not on a bracket, it uses the first one
@@ -273,7 +273,7 @@ cursor and where the motion would have gone:
 
      cw     to the start of the next word    cb    back a word
      c$     to the end of the line           c0    to its start
-     cfx    up to and including the next x   ctx   up to it
+     cfx    up to and including the next x
      c/re   up to the next match of re       c%    to the matching bracket
      c}     to the end of the paragraph      ce    to the end of the word
 
@@ -436,11 +436,8 @@ were.
 
 5.4.  Adjusting the screen
 
-     ^L  redraws the screen, if something has written over it.
-
-     zt  puts the current line at the top of the screen,  zz  in the
-middle and  zb  at the bottom. With a count, the count is the line to
-show.
+     ^L  redraws the screen, if something has written over it.  ^E
+and  ^Y  scroll it by a line, and the cursor stays where it is.
 
 
 
@@ -515,7 +512,7 @@ file is  ,  in tie, as in sam.)
 
      vi users note: vi's  :s  is  :e s  in tie;  :s  alone is select,
 after acme's button 1 (section 7.2), and  :e  no longer edits a file:
-look does that ( :l name ,  C ), and  :new name  starts a new one. The
+look does that ( :l name ,  t ), and  :new name  starts a new one. The
 first match on every line, vi's  :%s/re/new/ , is  :e ,x/.*\n/s/re/new/ .
 
 
@@ -598,29 +595,30 @@ mode drops dot; ESC does too.
 
      Acme has three mouse buttons, and almost everything is done with
 them: button 1 selects, button 2 executes, button 3 looks. Tie has
-the same three on the keyboard, side by side at the bottom left,
-typed with SHIFT:
+the same three on the keyboard, as plain letters:
 
-     Z      select      (button 1)
-     X      execute     (button 2)
-     C      look        (button 3)
+     s      select      (button 1)
+     z      execute     (button 2)
+     t      look        (button 3)
 
 and on the status line as  :s ,  :x  and  :l , and on the mouse itself
 (section 7.7). Each takes dot if there is one, and otherwise the text
 at the cursor.
 
-     (In vi these keys are ZZ, X and C.) The choice is made in the file
+     (In vi these keys substitute a character, place the screen ( zt zz
+zb ) and move up to a character ( tx ); tie does without those.) The
+choice is made in the file
 config.go (section 7.10), and is easily changed.
 
 
 7.2.  Select
 
-     Z  selects the word under the cursor. If the cursor is on a bracket
+     s  selects the word under the cursor. If the cursor is on a bracket
 or a quote, it selects the text up to the matching one instead, and on
 a blank it selects the line. Tie is then in visual mode: the motions of
 section 2 move the end of dot where the cursor is, while the other end
-stays, so  Z}  selects from the word to the end of the paragraph. Each
-further  Z  makes dot bigger: whole lines, then the paragraph, then
+stays, so  s}  selects from the word to the end of the paragraph. Each
+further  s  makes dot bigger: whole lines, then the paragraph, then
 the whole file.
 
      v  starts visual mode at the single character under the cursor,
@@ -629,7 +627,7 @@ the cursor to the other end of dot, so you can adjust that end.
 Pressing  v  (or  V ) again, or ESC, leaves visual mode and drops dot.
 
      A search makes dot too: the match. If dot is not empty when you
-type  Z  or  v , visual mode starts with it, so you can search for
+type  s  or  v , visual mode starts with it, so you can search for
 something and go on with what you found.
 
      On the status line,  :s  selects: an address alone, as in  :5,9s
@@ -649,15 +647,15 @@ at the cursor. A pattern address,  :/re/ , makes the match dot.
      rx         replace every character of dot with x
      :          a command line on dot, for instance a pipe (section 7.4)
      <  >       shift the lines of dot, as in vi
-     X          execute dot (section 7.5)
-     C          look at dot (section 7.6)
-     Z          make dot bigger (section 7.2)
+     z          execute dot (section 7.5)
+     t          look at dot (section 7.6)
+     s          make dot bigger (section 7.2)
 
-     Because a search makes dot and  Z  takes it, a cut of one match is
+     Because a search makes dot and  s  takes it, a cut of one match is
 easy to repeat on the next:
 
      /XX  RETURN      the first XX is dot
-     Zc               cut dot
+     sc               cut dot
      n                the next XX is dot
      .                and period cuts it
 
@@ -692,7 +690,7 @@ line starting with } by the date.
 7.5.  Execute
 
      In acme, any text on the screen can be executed: you point at it
-and the command runs.  X  executes dot, or, with nothing selected, the
+and the command runs.  z  executes dot, or, with nothing selected, the
 word under the cursor, taken as everything up to the blanks around it.
 :x  executes its argument, or dot, or the word:  :x make test .
 
@@ -743,7 +741,7 @@ with  :w name ; from then on it is a file like any other.
 
 7.6.  Look
 
-     C  looks at dot, or, with nothing selected, at the name under the
+     t  looks at dot, or, with nothing selected, at the name under the
 cursor.  :l  looks at its argument, or dot, or the name:  :l main.go:40 .
 Looking means, in this order:
 
@@ -772,8 +770,8 @@ subdirectories ending in / . Looking at an entry opens it.
 
 
      Together, execute and look give most of what acme's mouse does:
-put the cursor on  ls , or select  grep -n pattern *.go , and press  X ,
-then press  C  on any line of the output.
+put the cursor on  ls , or select  grep -n pattern *.go , and press  z ,
+then press  t  on any line of the output.
 
 
 7.7.  The mouse
@@ -808,7 +806,7 @@ Command for button 3, but terminals keep Command-clicks to
 themselves.) Some
 terminals keep Option- or Control-clicks too (macOS terminals may want
 Option set to act as Meta, and may show a menu for Control-click).
-The keys  X  and  C  always do the work of buttons 2 and 3. Which
+The keys  z  and  t  always do the work of buttons 2 and 3. Which
 modifier means which button is set in config.go.
 
 
@@ -821,7 +819,7 @@ as
      Write Get Diff Undo Redo Yank Cut Paste New Del |fmt
 
 so that the builtins of section 7.5 are always at hand, to be executed
-with  X  or button 2. But the tag is ordinary text, and you can keep
+with  z  or button 2. But the tag is ordinary text, and you can keep
 anything there: the commands you use with this file ( make test ,
 |sort ,  Edit ,s/teh/the/g ), patterns to look for, names of files.
 Each buffer keeps its own tag for as long as tie runs.
@@ -837,7 +835,7 @@ it. Dot in the buffer stays as it was while you are in the tag, so
      V}               select a paragraph
      g                go to the tag
      $                move to its last word, |fmt
-     X                execute it: the paragraph is formatted
+     z                execute it: the paragraph is formatted
 
 works as acme's "select, then click |fmt with button 2" does. With the
 mouse there is no need to go to the tag at all: button 2 on a word in
@@ -941,20 +939,19 @@ what it does. "Jump" marks the commands that set the mark  ' .
      $         motion: end of the line; with a count, of a later line
      %         motion, jump: the matching bracket
      '         motion, jump:  'x  the line of mark x;  ''  the previous context
-     ,         motion: repeat the last f F t T backwards
+     ,         motion: repeat the last f F backwards
      .         period: repeat the last change
      /         motion, jump: search forward
      0         motion: start of the line; also part of a count
      1-9       a count for the next command
      :         a command line (section 6.1)
-     ;         motion: repeat the last f F t T
+     ;         motion: repeat the last f F
      <         operator: shift left;  <<  the line
      >         operator: shift right;  >>  the line
      ?         list the keys and commands as they are bound now
      @         execute a register:  @a ;  @@  again
      A         append at the end of the line
      B         motion: back a big word
-     C         look (button 3) at dot or the name under the cursor (7.6)
      E         motion: end of a big word
      F         motion:  Fx  back to x on the line
      G         motion, jump: line N (count), the last line by default
@@ -967,11 +964,8 @@ what it does. "Jump" marks the commands that set the mark  ' .
      O         open a line above
      P         paste before the cursor, or above the line
      Q         leave the editor (:qa)
-     T         motion:  Tx  back to just after x
      V         visual mode, by lines
      W         motion: the next big word
-     X         execute (button 2) dot or the word under the cursor (7.5)
-     Z         select (button 1): the word; then motions extend dot (7.2)
      ^         motion: first non-blank of the line
      a         append after the cursor
      b         motion: back a word
@@ -990,21 +984,22 @@ what it does. "Jump" marks the commands that set the mark  ' .
      o         open a line below
      p         paste after the cursor, or below the line
      r         rx  replaces characters by x
-     t         motion:  tx  to just before x
+     s         select (button 1): the word; then motions extend dot (7.2)
+     t         look (button 3) at dot or the name under the cursor (7.6)
      u         undo
      v         visual mode from the character: make dot
      w         motion: the next word
      x         cut characters (cl)
      y         operator: yank;  yy  the line
-     z         zt, zz and zb put the current line at the top, middle, bottom
+     z         execute (button 2) dot or the word under the cursor (7.5)
      {         motion, jump: the previous empty line
      }         motion, jump: the next empty line
      ~         change the case of characters
 
      In visual mode, the motions move the cursor end of dot, and these
-keys act on it:  c y p J ~ u U r : < > , as in section 7.3;  X
-executes dot and  C  looks at it;  g  goes to the tag and keeps dot.
-Z  grows dot to lines, the paragraph, the file.  o  goes to the other
+keys act on it:  c y p J ~ u U r : < > , as in section 7.3;  z
+executes dot and  t  looks at it;  g  goes to the tag and keeps dot.
+s  grows dot to lines, the paragraph, the file.  o  goes to the other
 end;  v  and  V  switch the kind of selection or leave; ESC leaves.
 
      In insert mode: ESC ends; RETURN starts a new line; BACKSPACE

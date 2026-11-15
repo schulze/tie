@@ -58,8 +58,7 @@ func init() {
 		'e': {mWordEnd, inclusive, 0}, 'E': {mWordEnd, inclusive, 0},
 		'G': {mGoto, linewise, mJump},
 		'H': screen, 'M': screen, 'L': screen,
-		'f': {mFind, inclusive, 0}, 't': {mFind, inclusive, 0},
-		'F': {mFind, exclusive, 0}, 'T': {mFind, exclusive, 0},
+		'f': {mFind, inclusive, 0}, 'F': {mFind, exclusive, 0},
 		';': {mRefind, inclusive, 0}, ',': {mRefind, inclusive, 0},
 		'%': {mMatch, inclusive, mJump},
 		'}': {mParaFwd, exclusive, mJump}, '{': {mParaBack, exclusive, mJump},
@@ -287,10 +286,10 @@ func mFind(e *Editor, c *ctx) (int, bool) {
 		return 0, false
 	}
 	e.find.key, e.find.ch = c.key, rune(k)
-	return e.findChar(c.key, rune(k), c.n(), false)
+	return e.findChar(c.key, rune(k), c.n())
 }
 
-var reverseFind = map[Key]Key{'f': 'F', 'F': 'f', 't': 'T', 'T': 't'}
+var reverseFind = map[Key]Key{'f': 'F', 'F': 'f'}
 
 func mRefind(e *Editor, c *ctx) (int, bool) {
 	k := e.find.key
@@ -300,44 +299,30 @@ func mRefind(e *Editor, c *ctx) (int, bool) {
 	if c.key == ',' {
 		k = reverseFind[k]
 	}
-	if k == 'F' || k == 'T' {
+	c.kind = inclusive
+	if k == 'F' {
 		c.kind = exclusive
 	}
-	return e.findChar(k, e.find.ch, c.n(), true)
+	return e.findChar(k, e.find.ch, c.n())
 }
 
-// findChar looks for the n-th ch on the current line (f, F, t, T).
-func (e *Editor) findChar(k Key, ch rune, n int, again bool) (int, bool) {
+// findChar looks for the n-th ch on the current line, forward (f) or back (F).
+func (e *Editor) findChar(k Key, ch rune, n int) (int, bool) {
 	f := e.f
 	q, b, end := f.cur, f.bol(f.cur), f.eol(f.cur)
-	switch k {
-	case 'f', 't':
-		if k == 't' && again {
-			q++
-		}
-		for range n {
+	for range n {
+		if k == 'f' {
 			for q++; q < end && f.t.At(q) != ch; q++ {
 			}
 			if q >= end {
 				return 0, false
 			}
-		}
-		if k == 't' {
-			q--
-		}
-	case 'F', 'T':
-		if k == 'T' && again {
-			q--
-		}
-		for range n {
+		} else {
 			for q--; q >= b && f.t.At(q) != ch; q-- {
 			}
 			if q < b {
 				return 0, false
 			}
-		}
-		if k == 'T' {
-			q++
 		}
 	}
 	return q, true

@@ -53,7 +53,6 @@ var editTests = []struct {
 	{"c$", "abc def\n", "wc$", "abc \n", 3},
 	{"c$ alias", "abc def\n", "wc$", "abc \n", 3},
 	{"c0", "abc def\n", "wc0", "def\n", 0},
-	{"ct", "abc, def\n", "ct,", ", def\n", 0},
 	{"cf", "abc, def\n", "cf,", " def\n", 0},
 	{"c;", "a,b,c\n", "f,c;", "ac\n", 1},
 	{"c%", "f(a(b)c) x\n", "f(c%", "f x\n", 1},
@@ -114,7 +113,6 @@ var editTests = []struct {
 	{"f", "abcabc\n", "fc", "abcabc\n", 2},
 	{"2f", "abcabc\n", "2fc", "abcabc\n", 5},
 	{"; ,", "abcabc\n", "fc;,", "abcabc\n", 2},
-	{"t;", "a,b,c\n", "t,;", "a,b,c\n", 2},
 	{"F", "abcabc\n", "$Fa", "abcabc\n", 3},
 	{"%", "(a)\n", "%", "(a)\n", 2},
 	{"marks", "a\nb\nc\n", "jmaG'ax", "a\n\nc\n", 2},
@@ -173,8 +171,8 @@ var editTests = []struct {
 	{"< empty dot", "ab\n", "l:<echo X\r", "aXb\n", 1},
 	{"v: s on dot", "aaa aaa\n", "vee:e s/a/b/g\r", "bbb bbb\n", 0},
 	{"v: s charwise", "aaa aaa\n", "ve:e s/a/b/g\r", "bbb aaa\n", 0},
-	{"search dot Z c", "foo bar foo\n", "/bar\rZc", "foo  foo\n", 4},
-	{"search dot period", "x a y a\n", "/a\rZcn.", "x  y \n", -1},
+	{"search dot s c", "foo bar foo\n", "/bar\rsc", "foo  foo\n", 4},
+	{"search dot period", "x a y a\n", "/a\rscn.", "x  y \n", -1},
 	{"search dot pipe", "abc def\n", "/def\r:|tr a-z A-Z\r", "abc DEF\n", 4},
 	{"period pipe", "b\na\n\nd\nc\n", "Vj:|sort\r}j.", "a\nb\n\nc\nd\n", 5},
 
@@ -319,8 +317,8 @@ var docTests = []struct {
 	{":'a,'by", "a\nb\nc\n", "majmb:'a,'byank\rGp", "a\nb\nc\na\nb\n"},
 	{":.,+1|", "b\na\nc\n", ":.,+1|sort\r", "a\nb\nc\n"},
 	{"macro ^V ESC", "x\ny\n", "o$a!\x16\x1b\x1b0\"ay$cc1G@aj@@", "x!\ny!\n"},
-	{"execute :cmd", "a\n:1cut\n", "jVX", ":1cut\n"},
-	{"execute ex on dot", "aaa\n:e ,s/a/b/g\n", "jVX", "bbb\n:e ,s/b/b/g\n"},
+	{"execute :cmd", "a\n:1cut\n", "jVz", ":1cut\n"},
+	{"execute ex on dot", "aaa\n:e ,s/a/b/g\n", "jVz", "bbb\n:e ,s/b/b/g\n"},
 	{"5i", "\n", "5i-\x1b", "-----\n"},
 	{"cwwP", "one two three\n", "cwwP", "two one three\n"},
 }
@@ -358,13 +356,13 @@ func TestPlumb(t *testing.T) {
 		name, text, keys, file string
 		line, col              int
 	}{
-		{"look", "see a.txt here\n", "wwC", a, 0, 0},
-		{"gf on address", "a.txt:2: error\n", "C", a, 1, 0},
-		{"gf line:col", "x a.txt:3:4\n", "$C", a, 2, 3},
-		{"gf regexp address", "a.txt:/hre/\n", "v$C", a, 2, 1},
-		{"v gf", "[a.txt]\n", "lvllllC", a, 0, 0},
-		{"v C takes dot as is", "a.txt\n", "vllC", filepath.Join(dir, "notes"), 0, 0},
-		{"directory", "sub\n", "CC", filepath.Join(dir, "sub", "b.txt"), 0, 0},
+		{"look", "see a.txt here\n", "wwt", a, 0, 0},
+		{"gf on address", "a.txt:2: error\n", "t", a, 1, 0},
+		{"gf line:col", "x a.txt:3:4\n", "$t", a, 2, 3},
+		{"gf regexp address", "a.txt:/hre/\n", "v$t", a, 2, 1},
+		{"v gf", "[a.txt]\n", "lvllllt", a, 0, 0},
+		{"v t takes dot as is", "a.txt\n", "vllt", filepath.Join(dir, "notes"), 0, 0},
+		{"directory", "sub\n", "tt", filepath.Join(dir, "sub", "b.txt"), 0, 0},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -384,14 +382,14 @@ func TestPlumb(t *testing.T) {
 func TestExecuteLs(t *testing.T) {
 	dir := plumbDir(t)
 	e := editorIn(dir, "notes", "ls\n")
-	e.feed("VX")
+	e.feed("Vz")
 	if want := filepath.Join(dir, "+Errors"); e.f.name != want {
 		t.Fatalf("on %q, want %q (msg %q)", e.f.name, want, e.msg)
 	}
 	if got := string(e.f.t.r); got != "a.txt\nnotes\nsub\n" && got != "a.txt\nsub\n" {
 		t.Fatalf("+Errors holds %q", got)
 	}
-	e.feed("C")
+	e.feed("t")
 	if e.f.name != filepath.Join(dir, "a.txt") {
 		t.Fatalf("look in +Errors opened %q", e.f.name)
 	}
@@ -536,17 +534,17 @@ var buttonTests = []struct {
 	name, text, keys, want string
 	dot                    Range // checked unless zero
 }{
-	{"select word", "one two\n", "wZc", "one \n", Range{}},
-	{"select grows to line", "ab cd\nx\n", "ZZc", "x\n", Range{}},
-	{"select grows to paragraph", "a\nb\n\nc\n", "ZZZc", "\nc\n", Range{}},
-	{"select then motion", "one two three\n", "Zwc", "wo three\n", Range{}},
-	{"select brackets", "f(abc)\n", "lZc", "f()\n", Range{}},
-	{"select quotes", `say "hi there"` + "\n", "fhhZc", `say ""` + "\n", Range{}},
-	{"select keeps search dot", "a foo b\n", "/foo\rZc", "a  b\n", Range{}},
-	{"select then change, period", "x a y a\n", "/a\rZcn.", "x  y \n", Range{}},
-	{"execute builtin word", "abc Undo\n", "x$X", "abc Undo\n", Range{}},
-	{"look searches", "foo bar foo\n", "C", "foo bar foo\n", Range{8, 11}},
-	{"look on dot", "ab x ab\n", "vlC", "ab x ab\n", Range{5, 7}},
+	{"select word", "one two\n", "wsc", "one \n", Range{}},
+	{"select grows to line", "ab cd\nx\n", "ssc", "x\n", Range{}},
+	{"select grows to paragraph", "a\nb\n\nc\n", "sssc", "\nc\n", Range{}},
+	{"select then motion", "one two three\n", "swc", "wo three\n", Range{}},
+	{"select brackets", "f(abc)\n", "lsc", "f()\n", Range{}},
+	{"select quotes", `say "hi there"` + "\n", "fhhsc", `say ""` + "\n", Range{}},
+	{"select keeps search dot", "a foo b\n", "/foo\rsc", "a  b\n", Range{}},
+	{"select then change, period", "x a y a\n", "/a\rscn.", "x  y \n", Range{}},
+	{"execute builtin word", "abc Undo\n", "x$z", "abc Undo\n", Range{}},
+	{"look searches", "foo bar foo\n", "t", "foo bar foo\n", Range{8, 11}},
+	{"look on dot", "ab x ab\n", "vlt", "ab x ab\n", Range{5, 7}},
 	{":s address", "a\nb\nc\n", ":2s\r", "a\nb\nc\n", Range{2, 4}},
 	{":s word", "one two\n", "w:s\r", "one two\n", Range{4, 7}},
 	{":l text", "a b c b\n", ":l b\r", "a b c b\n", Range{2, 3}},
@@ -585,7 +583,7 @@ func TestButtons(t *testing.T) {
 func TestExecuteButton(t *testing.T) {
 	dir := plumbDir(t)
 	e := editorIn(dir, "notes", "echo hi\n")
-	e.feed("VX")
+	e.feed("Vz")
 	if got := string(e.f.t.r); got != "hi\n" || filepath.Base(e.f.name) != "+Errors" {
 		t.Fatalf("on %q: %q", e.f.name, got)
 	}
@@ -599,7 +597,7 @@ func TestExecuteButton(t *testing.T) {
 func TestLookOpens(t *testing.T) {
 	dir := plumbDir(t)
 	e := editorIn(dir, "notes", "see a.txt:2\n")
-	e.feed("wC")
+	e.feed("wt")
 	if e.f.name != filepath.Join(dir, "a.txt") || e.f.line(e.f.cur) != 1 {
 		t.Fatalf("on %q line %d (msg %q)", e.f.name, e.f.line(e.f.cur), e.msg)
 	}
@@ -629,7 +627,7 @@ func TestLookRules(t *testing.T) {
 		return nil
 	}}}
 	e := testEditor("see issue#42 now\n")
-	e.feed("wC")
+	e.feed("wt")
 	if len(got) != 2 || got[1] != "42" {
 		t.Fatalf("rule got %q", got)
 	}
@@ -735,28 +733,22 @@ func TestMoves(t *testing.T) {
 		{"{", "a\n\nb\nc\n", "G{", 1, 0},
 		{"} {", "a\nb\n\nc\n\nd\n", "}}{", 2, 0},
 		{"b over empty line", "a\n\nb\n", "Gbb", 0, 0},
-		{"H", long, "50Gzz" + "H", 39, 0},
-		{"L", long, "50GzzL", 60, 0},
-		{"M", long, "50GzzM", 49, 0},
-		{"3H", long, "ztH3H", 2, 0},
+		{"H", long, "50GH", 39, 0},
+		{"L", long, "50GL", 60, 0},
+		{"M", long, "50GM", 49, 0},
+		{"3H", long, "H3H", 2, 0},
 		{"^D", long, "\x04", 11, 0},
 		{"^D ^U", long, "\x04\x04\x15", 11, 0},
 		{"^F", long, "\x06", 20, 0},
 		{"^F ^B", long, "\x06\x06\x02", 40, 0},
 		{"^B moves cursor up", long, "\x06\x06L\x02", 41, 0},
 		{"^E moves cursor along", long, "5\x05", 5, 0},
-		{"^Y", long, "Gzt\x19", 99, 0},
+		{"^Y", long, "G\x19", 99, 0},
 		{"^Y keeps cursor on screen", long, "\x06L\x19", 40, 0},
-		{"zz", long, "50GzzH", 39, 0},
-		{"zb", long, "50GzbH", 28, 0},
-		{"zt", long, "50GztH", 49, 0},
-		{"10zt", long, "10ztH", 9, 0},
 		{"$ count", "ab\ncd\n", "2$", 1, 1},
 		{"2G", "a\nb\nc\n", "G2G", 1, 0},
 		{"''", "a\nb\nc\n", "G''", 0, 0},
 		{"; F", "a.b.c.d\n", "$F.;", 0, 3},
-		{", t", "a.b.c.d\n", "t.,", 0, 0},
-		{"T", "a.b.c\n", "$T.", 0, 4},
 		{"% back", "(a)\n", "$%", 0, 0},
 		{"W", "a.b c.d e\n", "WW", 0, 8},
 		{"B", "a.b c.d e\n", "$B", 0, 4},
@@ -938,7 +930,7 @@ func TestLookRuleCommand(t *testing.T) {
 	out := filepath.Join(dir, "out")
 	lookRules = []lookRule{{pattern: `^x-(\w+)$`, cmd: `echo "$1 $2" > ` + out}}
 	e := editorIn(dir, "notes", "see x-ray\n")
-	e.feed("wC")
+	e.feed("wt")
 	for i := 0; i < 50; i++ { // the command runs without tie waiting
 		if b, _ := os.ReadFile(out); string(b) == "x-ray ray\n" {
 			return
@@ -1007,19 +999,19 @@ func TestTag(t *testing.T) {
 func TestTagCommands(t *testing.T) {
 	// Undo in the tag undoes in the body.
 	e := testEditor("abc\n")
-	e.feed("xgfUX") // fU: to "Undo"
+	e.feed("xgfUz") // fU: to "Undo"
 	if got := string(e.f.t.r); got != "abc\n" || e.f.owner != nil {
 		t.Errorf("Undo from the tag: %q, in tag %v", got, e.f.owner != nil)
 	}
 	// Select in the body, add |sort to the tag, execute it there.
 	e = testEditor("b\na\nc\n")
-	e.feed("VjgA |sort\x1bX")
+	e.feed("VjgA |sort\x1bz")
 	if got := string(e.f.t.r); got != "a\nb\nc\n" {
 		t.Errorf("|sort from the tag: %q (msg %q)", got, e.msg)
 	}
 	// Look at a word in the tag: search the body.
 	e = testEditor("x foo y foo\n")
-	e.feed("gA foo\x1bC")
+	e.feed("gA foo\x1bt")
 	if e.f.owner != nil || e.f.dot != (Range{2, 5}) {
 		t.Errorf("look from the tag: dot %v (msg %q)", e.f.dot, e.msg)
 	}
@@ -1045,7 +1037,7 @@ func TestTagCommands(t *testing.T) {
 func TestTagFmt(t *testing.T) {
 	// The example of the introduction, section 7.8.
 	e := testEditor("one\ntwo\n\nthree\n")
-	e.feed("V}g$X")
+	e.feed("V}g$z")
 	if got := string(e.f.t.r); got != "one two\n\nthree\n" {
 		t.Errorf("got %q (msg %q)", got, e.msg)
 	}
@@ -1053,7 +1045,7 @@ func TestTagFmt(t *testing.T) {
 
 func TestExecuteOnBlank(t *testing.T) {
 	e := testEditor("ls  x\n")
-	e.feed("llX")
+	e.feed("llz")
 	if e.f.name != "" || len(e.files) != 1 {
 		t.Errorf("X on a blank executed something: on %q", e.f.name)
 	}
@@ -1180,7 +1172,7 @@ func TestDiskChangeModified(t *testing.T) {
 	e.feed("x")
 	changeOnDisk(t, name, "disk\n")
 	e.feed("")
-	e.feed("gwX") // in the tag, the second word: Get
+	e.feed("gwz") // in the tag, the second word: Get
 	if got := string(e.f.t.r); got != "disk\n" || e.f.stale || e.f.dirty() {
 		t.Fatalf("Get: %q, stale %v", got, e.f.stale)
 	}
@@ -1330,12 +1322,12 @@ func TestTutor(t *testing.T) {
 		{"Lesson 4.4", "---> thee best", ":e s/thee/the/g\r", "---> the best time to see the flowers is in the spring."},
 		{"Lesson 5.3", "      :<date <RETURN> . The date", "$:<echo DATE\r", "      :<date <RETURN> . The date goes in at the cursorDATE."},
 		{"Lesson 5.4", "---> pear", "V3j:|sort\r", "---> apple"},
-		{"Lesson 6.2", "---> Please do not shout.", "$bZU", "---> Please do not SHOUT."},
+		{"Lesson 6.2", "---> Please do not shout.", "$bsU", "---> Please do not SHOUT."},
 		{"Lesson 6.3", "---> delta", "V3j:|sort\r", "---> alpha"},
-		{"Lesson 6.4", "---> Remove XX", "0/XX\rZcn.n.n.", "---> Remove the markers from this line."},
+		{"Lesson 6.4", "---> Remove XX", "0/XX\rscn.n.n.", "---> Remove the markers from this line."},
 		{"Lesson 6.4", "---> The cat sat", "Vj:e s/\\<cat\\>/dog/g\r", "---> The dog sat on the mat. The dog was black."},
-		{"Lesson 6.8", "---> x marks", "0xgwwwX", "---> x marks the spot"},
-		{"Lesson 6.8", "---> delta", "V3jgA |sort" + esc + "X", "---> alpha"},
+		{"Lesson 6.8", "---> x marks", "0xgwwwz", "---> x marks the spot"},
+		{"Lesson 6.8", "---> delta", "V3jgA |sort" + esc + "z", "---> alpha"},
 		{"Lesson 6.9", "---> item 1", "Vjj:e x/[0-9]+/c/N/\r", "---> item N costs N"},
 	} {
 		t.Run(tt.lesson, func(t *testing.T) {
@@ -1386,7 +1378,7 @@ func TestCommandNames(t *testing.T) {
 	if !strings.Contains(e.msg, "no selection") {
 		t.Errorf("Yank without dot: %q", e.msg)
 	}
-	e.feed("Z:cut\r") // the word, as Cut in the tag would
+	e.feed("s:cut\r") // the word, as Cut in the tag would
 	if got := string(e.f.t.r); got != " two\n" {
 		t.Errorf(":cut on dot: %q", got)
 	}
@@ -1496,7 +1488,7 @@ func TestUnnamedIsScratch(t *testing.T) {
 func TestErrorsName(t *testing.T) {
 	dir := plumbDir(t)
 	e := editorIn(dir, "sub/notes", "echo hi\n")
-	e.feed("VX")
+	e.feed("Vz")
 	if got := e.shortName(e.f); got != "sub/+Errors" {
 		t.Errorf("+Errors on the buffer line: %q", got)
 	}

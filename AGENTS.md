@@ -128,10 +128,10 @@ Everything is table driven; prefer a table entry over a special case.
 Keep these unless the user decides otherwise (they are documented in
 `doc/intro.txt`):
 
-- `Z` `X` `C` (shifted, bottom left) are the select / execute / look
-  buttons, replacing vi's `ZZ`, `X` (`dh`) and `C` (`c$`). Configurable in
-  `config.go`. The user rejected `A S D` (too valuable in vi) and asked
-  for letters on the left; no single letter there is free in vi.
+- `s` `z` `t` are the select / execute / look buttons (`config.go`):
+  `s` was free, and vi's `zt zz zb` and `tx`/`Tx` were dropped for `z`
+  and `t` (`fx`/`Fx` find a character). Earlier choices were `A S D` and
+  `Z X C`; the user prefers unshifted keys.
 - `c` is cut (vi's `d`); vi's change operator is gone (cut, then insert).
   `d` is acme's Del: it closes the buffer (`:del`, short `:q`; the last
   one leaves the editor). On a modified buffer the first only warns, and
@@ -143,15 +143,15 @@ Keep these unless the user decides otherwise (they are documented in
   `select`/`s`, `execute`/`x`); no other abbreviations.
 - `:s` select, `:x` execute, `:l` look. `:edit` / `:e` is sam's command
   language (acme's Edit); substitute is `:e s/…/…/`, on the range as one
-  text. vi's `:e file` is gone: look opens files (`:l name`, `C`), and
+  text. vi's `:e file` is gone: look opens files (`:l name`, `t`), and
   `:new name` (`New` in the tag) starts a new one. `Get` re-reads from disk.
   vi's `:s`/`:su` and `&` are gone.
 - Visual mode keeps vi's meaning for `<` `>` (shift). The only filter is
   acme's `|` (`:|cmd`, `|` in visual mode): vi's `!` operator, visual `!`
   and `:a,b!cmd` were removed; `:!cmd` only runs a command on the terminal.
 - The whole file is `,` (sam), not vi's `%`; `:%…` says so. There is no
-  `gf`: look (`C`) opens files.
-- Executed text (`X`, button 2, `:x`) and `>cmd` send output to
+  `gf`: look (`t`) opens files.
+- Executed text (`z`, button 2, `:x`) and `>cmd` send output to
   `+Errors`; `:!cmd` runs on the terminal as in vi.
 - `g` in normal and visual mode goes to the tag and back; vim's `gg` is
   gone (use `1G`, as in vi). `Tab` puts the cursor on the buffer line:
@@ -168,7 +168,8 @@ execute, visual `< >` as pipes, `gf`, `:e #` and `N^^` (`^^` remains),
 the buffers), `:previous`, `:=`, and the file name on the status line.
 Later: the vi aliases `s S D Y` and `R` (replace mode), the motions
 `^H ^J ^N ^P`, Space, Backspace, `+ -` Enter, `|` and `` ` ``, the `z`
-spellings other than `zt zz zb`, visual `x s P |`, `:put :undo :redo`
+spellings other than `zt zz zb` (and later those too, for `z`), the
+`tx`/`Tx` motions (for `t`), visual `x s P |`, `:put :undo :redo`
 (the builtins call the code), `:f`, `:r` (`:<cat file`), `:xit` (`:wq`),
 a count before `:`, and the `wrapscan` option (searches always wrap).
 Then: vi's change operator (`c` became cut, vi's `d`), `d` as delete (it

@@ -40,7 +40,6 @@ func init() {
 
 		'm': {markCmd, false},
 		'@': {atCmd, false},
-		'z': {zCmd, false},
 		'd': {func(e *Editor, c *ctx) { e.msgErr(e.ex("del")) }, false},
 		'Q': {func(e *Editor, c *ctx) { e.msgErr(e.ex("exit")) }, false},
 
@@ -248,27 +247,6 @@ func atCmd(e *Editor, c *ctx) {
 		}
 	}
 	e.in.push(keys)
-}
-
-func zCmd(e *Editor, c *ctx) {
-	f := e.f
-	if c.count > 0 {
-		f.cur = f.firstNonBlank(min(c.count, f.t.Nlines()) - 1)
-	}
-	ln := f.line(f.cur)
-	switch e.in.Get() {
-	case 't':
-		f.top = ln
-	case 'z':
-		e.center(f, ln)
-	case 'b':
-		f.top = ln
-		used := e.height(f, ln)
-		for f.top > 0 && used+e.height(f, f.top-1) <= e.rows() {
-			f.top--
-			used += e.height(f, f.top)
-		}
-	}
 }
 
 func scrollCmd(e *Editor, c *ctx) {

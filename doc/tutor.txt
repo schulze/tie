@@ -531,36 +531,36 @@
 
    Acme does nearly everything with three mouse buttons: the first
    SELECTS, the second EXECUTES, the third LOOKS. Tie has the same
-   three buttons on the keyboard, side by side at the bottom left,
-   with SHIFT:
+   three buttons on the keyboard, as plain letters:
 
-          Z  select          X  execute          C  look
+          s  select          z  execute          t  look
 
-   (In vi these keys are ZZ, X and C.)
+   (In vi these keys substitute a character, place the screen and move
+   up to a character; tie does without those.)
 
-   Z  selects the word under the cursor and starts VISUAL mode: now
-   any motion moves the cursor end of dot. Pressing  Z  again makes
+   s  selects the word under the cursor and starts VISUAL mode: now
+   any motion moves the cursor end of dot. Pressing  s  again makes
    dot bigger: the line, then the paragraph, then the whole file.
 
-   1. Put the cursor on  quick  below and press  Z .  Press  e  twice
+   1. Put the cursor on  quick  below and press  s .  Press  e  twice
       to take in two more words.  <ESC>  gives up and drops dot.
 
 ---> The quick brown fox jumps.
 
-   2. Press  Z  on  quick  again, and  Z  again: now the whole line
+   2. Press  s  on  quick  again, and  s  again: now the whole line
       is dot. Press  c  to cut it, and  u  to bring it back.
 
-   On a bracket or a quote,  Z  selects what is inside:
+   On a bracket or a quote,  s  selects what is inside:
 
 ---> call(with, some, arguments) and "a quoted string"
 
-   3. Put the cursor on the  (  and press  Z , then  <ESC> . Try the
+   3. Put the cursor on the  (  and press  s , then  <ESC> . Try the
       first  "  too.
 
    There are other ways to make dot:
 
      -  v  starts visual mode at a single character,  V  with whole
-        lines. Then motions extend dot, as after  Z .
+        lines. Then motions extend dot, as after  s .
         o  jumps to the other end of dot.
      -  A search:  /pattern  makes the match dot.
 
@@ -577,7 +577,7 @@
        ~ u U   swap, lower, upper case J       join the lines
        r x     replace each character with x
 
-   1. Select  shout  with  Z , then press  U .
+   1. Select  shout  with  s , then press  U .
 
 ---> Please do not shout.
 
@@ -613,7 +613,7 @@
    2. With dot still there, type  :|tr a-z A-Z <RETURN> . Every
       command line works on dot when you do not give an address.
 
-   3. Put the cursor on  NOW  below, select it with  Z , and type
+   3. Put the cursor on  NOW  below, select it with  s , and type
       :<date <RETURN> .
 
 ---> The time is NOW.
@@ -632,11 +632,11 @@
                Lesson 6.4: SEARCH, CUT, REPEAT
 ---------------------------------------------------------------------
 
-   A search makes dot, and  Z  (like  v ) starts from dot when there
+   A search makes dot, and  s  (like  v ) starts from dot when there
    is one. So a cut can be repeated on each match:
 
        /XX <RETURN>      find the first XX; it is dot
-       Z c               cut dot
+       s c               cut dot
        n                 the next XX is dot
        .                 period cuts it too
 
@@ -655,11 +655,11 @@
       \<  and  \>  match only whole words, so "cats" stays.
 
 ---------------------------------------------------------------------
-                  Lesson 6.5: EXECUTE  (X)
+                  Lesson 6.5: EXECUTE  (z)
 ---------------------------------------------------------------------
 
    In acme any text can be a command: you point at it and it runs.
-   In tie, put the cursor on it and press  X . X executes dot, or, if
+   In tie, put the cursor on it and press  z . z executes dot, or, if
    nothing is selected, the word under the cursor (everything up to
    the blanks around it).
 
@@ -670,21 +670,21 @@
    What a shell command prints is put into a buffer named +Errors,
    and tie shows it. CTRL-^ comes back.
 
-   1. Put the cursor on  date  below and press  X .  CTRL-^ .
+   1. Put the cursor on  date  below and press  z .  CTRL-^ .
 
 ---> date
 
    2. A command with arguments has blanks in it: select it first.
-      Select the next line with  V  and press  X .
+      Select the next line with  V  and press  z .
 
      ls -l /tmp
 
-   3. Select the next line with  V  and press  X . Then  :set nonu .
+   3. Select the next line with  V  and press  z . Then  :set nonu .
 
      :set nu
 
    4. Press  x  on the first  x  below, then put the cursor on  Undo
-      and press  X .
+      and press  z .
 
 ---> x Undo
 
@@ -693,25 +693,25 @@
    use with it.
 
 ---------------------------------------------------------------------
-                    Lesson 6.6: LOOK  (C)
+                    Lesson 6.6: LOOK  (t)
 ---------------------------------------------------------------------
 
-   C  looks at dot, or at the name under the cursor. Looking means:
+   t  looks at dot, or at the name under the cursor. Looking means:
 
      -  If it is a URL, or the name of a PDF or an image, open it with
         the desktop's program for it.  ls(1)  shows a manual page.
      -  If it names a file or a directory, open it. (Lesson 7.2.)
      -  Otherwise search for the next place it occurs: it becomes dot.
 
-   1. Put the cursor on  needle  and press  C . Press  C  again.
+   1. Put the cursor on  needle  and press  t . Press  t  again.
 
 ---> Looking for a needle in a haystack: needle, hay, needle.
 
-   2. Press  C  on  ls(1)  below. CTRL-^ comes back.
+   2. Press  t  on  ls(1)  below. CTRL-^ comes back.
 
 ---> See ls(1).
 
-   3. Press  C  on the URL. (Your browser should open.)
+   3. Press  t  on the URL. (Your browser should open.)
 
 ---> https://go.dev/doc/
 
@@ -763,23 +763,23 @@
 
        Write Get Diff Undo Redo Yank Cut Paste New Del |fmt
 
-   ready to be executed with  X  (or button 2). On the right is where
+   ready to be executed with  z  (or button 2). On the right is where
    the cursor is. A message takes the tag's place until the next key.
    Every buffer has its own tag, and it is text like any other: you
    can change it and keep your own commands there.
 
    g  goes into the tag, and  g  (or <ESC>) comes back. In the tag
-   all the editing commands work.  X ,  C  and  :  commands always
+   all the editing commands work.  z ,  t  and  :  commands always
    work on the buffer below, and take you back there.
 
    1. Delete the  x  on the line below with  x . Press  g , move to
-      Undo  with  www  and press  X . The  x  is back, and you are in the text again.
+      Undo  with  www  and press  z . The  x  is back, and you are in the text again.
 
 ---> x marks the spot
 
    2. The tag works on dot, which stays as it was while you are in the
       tag. Select the four lines below with  V  and  3j , press  g ,
-      add a command at the end with  A |sort <ESC> , and press  X .
+      add a command at the end with  A |sort <ESC> , and press  z .
 
 ---> delta
 ---> alpha
@@ -823,16 +823,16 @@
                          LESSON 6 SUMMARY
 ---------------------------------------------------------------------
 
-   1. Dot is the selection. Z selects the word (again: line, paragraph,
+   1. Dot is the selection. s selects the word (again: line, paragraph,
       file); v and V select from the cursor; a search makes dot.
    2. On dot:  c y p  ~ u U  J  r .
    3. Pipes on dot:  :|cmd  :<cmd  :>cmd ; any  :  command without an
       address works on dot.
-   4. /re  Z c  then  n .  cuts match after match;  :e s/re/new/g
+   4. /re  s c  then  n .  cuts match after match;  :e s/re/new/g
       on dot changes them.
-   5. X executes dot or the word:  :cmd , a pipe, a builtin like Write
+   5. z executes dot or the word:  :cmd , a pipe, a builtin like Write
       or Undo, or a shell command whose output goes to +Errors.  :x
-   6. C looks: plumb rules, then files, then search.  :l
+   6. t looks: plumb rules, then files, then search.  :l
    7. The mouse: 1 selects, 2 executes, 3 looks.
    8. g  goes to the tag and back: the buffer's line of commands.
    9. :e  runs sam commands:  ,s/a/b/g   ,x/re/c/text/
@@ -868,11 +868,11 @@
               Lesson 7.2: OPENING FILES FROM THE TEXT
 ---------------------------------------------------------------------
 
-   Look ( C , Lesson 6.6) opens the file whose name is under the
+   Look ( t , Lesson 6.6) opens the file whose name is under the
    cursor. You do not type the name: it is already there. CTRL-^
    returns.
 
-   1. Put the cursor on the name below and press  C . Then CTRL-^.
+   1. Put the cursor on the name below and press  t . Then CTRL-^.
 
 ---> /etc/hosts
 
@@ -880,33 +880,33 @@
    grep -n print them:  file:12  goes to line 12,  file:12:5  to
    column 5 as well, and  file:/re/  to the first match of re.
 
-   2. Try  C  on this one; it opens  /etc/hosts  at line 3.
+   2. Try  t  on this one; it opens  /etc/hosts  at line 3.
 
 ---> /etc/hosts:3
 
-   A directory opens as a list of its entries, one per line, and  C
+   A directory opens as a list of its entries, one per line, and  t
    on an entry opens that. Subdirectories end in / .
 
-   3. C  on  /etc/  below, find  hosts  in the list, and  C  again.
+   3. t  on  /etc/  below, find  hosts  in the list, and  t  again.
 
 ---> /etc/
 
    This works on any text, so also on the output of commands. Relative
    names are taken in the directory of the buffer they appear in.
 
-   4. Put the cursor on  ls  below and press  X  (Lesson 6.5).
+   4. Put the cursor on  ls  below and press  z  (Lesson 6.5).
       The +Errors buffer lists the files next to this tutor. Find the
       tutor's own name, tutor-something.txt, put the cursor on it and
-      press  C : you are back here.
+      press  t : you are back here.
 
 ---> ls
 
-   5. Select this line with  V  and press  X . Each output line names
-      this file and a line number;  C  on one goes there.
+   5. Select this line with  V  and press  z . Each output line names
+      this file and a line number;  t  on one goes there.
 
      grep -Hn LESSON tutor-*.txt
 
-   With dot selected,  C  opens the file dot names, whatever
+   With dot selected,  t  opens the file dot names, whatever
    characters the name has.
 
 ---------------------------------------------------------------------
@@ -962,7 +962,7 @@
 
    2. Now change a line here, and change the file again in the other
       terminal. Look at the top line, and try  Diff  in the tag: press
-      g , move to  Diff , and press  X .
+      g , move to  Diff , and press  z .
 
    :diff  also shows, at any time, what you have changed but not yet
    written.

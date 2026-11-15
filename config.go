@@ -5,13 +5,11 @@ import "runtime"
 // This file is meant to be edited: it holds the choices a user is most
 // likely to want to change. Rebuild tie after changing it.
 
-// The three acme mouse buttons on the keyboard, side by side at the
-// bottom left, in the order of the buttons: select, execute, look.
-// They replace vi's ZZ (use :wq or :xit), X (use dh) and C (use c$).
+// The three acme mouse buttons on the keyboard: select, execute, look.
 const (
-	keySelect  Key = 'Z' // button 1: select the word; again: grow to line, paragraph, file
-	keyExecute Key = 'X' // button 2: execute dot, or the word under the cursor
-	keyLook    Key = 'C' // button 3: look: open, plumb or search for dot or the word
+	keySelect  Key = 's' // button 1: select the word; again: grow to line, paragraph, file
+	keyExecute Key = 'z' // button 2: execute dot, or the word under the cursor
+	keyLook    Key = 't' // button 3: look: open, plumb or search for dot or the word
 )
 
 // keyTag goes into the tag line of the buffer and back (tag.go).
