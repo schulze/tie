@@ -94,7 +94,10 @@ func openTerm() (*Term, *Input, error) {
 	t := &Term{fd: fd, old: old, out: os.Stdout, pipe: [2]*os.File{r, w}}
 	in := &Input{fd: fd, sigfd: int(r.Fd())}
 	t.write(altScreenOn)
-	t.tab = t.queryTab(in)
+	t.tab = 8
+	if defaultOptions.ts == 0 { // only then is the terminal's needed
+		t.tab = t.queryTab(in)
+	}
 	t.size(in)
 	return t, in, nil
 }

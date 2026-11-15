@@ -16,7 +16,7 @@ behaviour, and keep it true afterwards.
 | `doc/tutor.txt` | The interactive tutor (vi-tutor style, `--->` practice lines). Teaches the same commands by doing. Opened by `tie -tutor` / `:tutor` on a temp copy. |
 | `README.md` | Overview for people browsing the repository; file layout; how to extend. |
 | `help.go` | The key help (`?`): what each key does, in lists next to the key tables; the `[keys]` buffer is made from them. `TestKeyHelp` fails when a key is bound without help, or described without being bound. |
-| `config.go` | The user-editable choices, and only those: button keys, tag key and default tag, mouse default, modifier clicks, look rules (the plumber). Everything else is plain code without override machinery. |
+| `config.go` | The user-editable choices, and only those: button keys, tag key and default tag, default options (`defaultOptions`: tabstop 4, autoindent, mouse …), modifier clicks, look rules (the plumber). Everything else is plain code without override machinery. |
 
 Both `doc/` files are embedded in the binary (`main.go`, `go:embed`), so
 a change to them ships with the next build.
@@ -203,6 +203,8 @@ Recorded so it is not lost; none of it is wanted yet.
   `+Errors`.
 - The rest of **sam's language** in `:edit`: `{ }` grouping and command
   sequences, `m`, `t`, `p`, `=`, and the multi-file `X` / `Y` / `B` / `D`.
+- A **startup file** (like vi's `.exrc`) for a few simple options, read
+  at start; `:set` stays until then. Today the defaults are
+  `defaultOptions` in `config.go`.
 - vi pieces not done yet: sentence motions `( )`, `q` macro recording
-  (`q` is free), `U`,
-  word abbreviations, `wrapmargin`, a startup file.
+  (`q` is free), word abbreviations, `wrapmargin`.

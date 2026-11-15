@@ -34,10 +34,9 @@ forgotten; commands your fingers have typed are not.
      Tie needs a terminal, or a terminal emulator window, that
 understands the ANSI (VT100) control sequences. Every terminal
 emulator in use today does. Tie asks the terminal for its size, and
-follows the window when you resize it. It also asks the terminal how
-wide its tab stops are, by printing a tab and asking where the cursor
-went; that becomes the tab width tie uses to show tabs, unless you set
-one (see section 6.2).
+follows the window when you resize it. A tab shows as 4 columns,
+unless you set another width (section 6.2); with a width of 0, tie asks
+the terminal how wide its own tab stops are.
 
      Tie uses the terminal's alternate screen, so when you leave the
 editor your shell session reappears as you left it.
@@ -523,15 +522,19 @@ first match on every line, vi's  :%s/re/new/ , is  :e ,x/.*\n/s/re/new/ .
 gives it a value.  :set name?  shows it. Options have short names.
 
      autoindent  ai    new lines start with the indent of the line above
+                       (default on)
      expandtab   et    insert spaces instead of tabs
-     ignorecase  ic    searches ignore case
+     ignorecase  ic    searches ignore case (or put (?i) in a pattern)
      list        list  show tabs as ^I and line ends as $
      mouse       mouse tie takes the mouse (default on; section 7.7)
      number      nu    show line numbers
-     shiftwidth  sw    columns for > and <           (default 8)
-     tabstop     ts    columns per tab stop          (the terminal's)
+     shiftwidth  sw    columns for > and <           (default 4)
+     tabstop     ts    columns per tab stop          (default 4; 0: the
+                                                      terminal's)
 
-     There are no startup files yet.
+     :set  changes an option while tie runs. What tie starts with is in
+defaultOptions in config.go; change it there and rebuild tie to make
+another choice your own. There is no startup file yet.
 
 
 6.3.  Recovering lost lines

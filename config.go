@@ -24,8 +24,17 @@ const (
 	defaultTag     = "Write Get Diff Undo Redo Yank Cut Paste New Del |fmt"
 )
 
-// mouseDefault says whether tie takes the mouse (:set mouse).
-const mouseDefault = true
+// The options tie starts with; :set changes them while it runs.
+var defaultOptions = Options{
+	ts:    4,     // tabstop: a tab shows as 4 columns (0: the terminal's)
+	sw:    4,     // shiftwidth: > and < shift by 4 columns
+	ai:    true,  // autoindent: a new line starts with the indent above
+	et:    false, // expandtab: TAB and > insert spaces
+	ic:    false, // ignorecase: searches ignore case
+	list:  false, // list: show tabs as ^I and line ends as $
+	nu:    false, // number: show line numbers
+	mouse: true,  // mouse: tie takes the mouse
+}
 
 // A click of button 1 with Option (Alt) or Control held down counts as
 // this button (0: no change), for mice and trackpads without three

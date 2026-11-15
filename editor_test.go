@@ -14,6 +14,9 @@ import (
 func testEditor(text string) *Editor {
 	t, in := headlessTerm(80, 24)
 	e := newEditor(t, in)
+	// Fixed options, so that the defaults in config.go can change
+	// without breaking the tests.
+	e.opt = Options{ts: 8, sw: 8, mouse: true}
 	f := newFile("")
 	f.t = Text{r: []rune(text)}
 	e.files, e.f = []*File{f}, f
@@ -1512,5 +1515,17 @@ func TestDelTwice(t *testing.T) {
 	e.feed(":x Del\r:x Del\r") // as with the word in the tag
 	if !e.quit {
 		t.Fatalf("Del twice on the last buffer did not leave")
+	}
+}
+
+func TestDefaultOptions(t *testing.T) {
+	term, in := headlessTerm(80, 24)
+	e := newEditor(term, in)
+	want := defaultOptions
+	if want.ts == 0 {
+		want.ts = term.tab
+	}
+	if e.opt != want {
+		t.Errorf("a new editor has %+v, config.go says %+v", e.opt, want)
 	}
 }

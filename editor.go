@@ -109,7 +109,10 @@ func newEditor(t *Term, in *Input) *Editor {
 		in:   in,
 		regs: map[rune]*Reg{},
 		hist: map[string][]string{},
-		opt:  Options{ts: t.tab, sw: 8, mouse: mouseDefault},
+		opt:  defaultOptions,
+	}
+	if e.opt.ts == 0 {
+		e.opt.ts = t.tab
 	}
 	t.setMouse(e.opt.mouse)
 	in.onResize = func() {
